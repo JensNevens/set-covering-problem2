@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B4C8F0941CBCE90100F02BA4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = B4C8F0931CBCE90100F02BA4 /* main.c */; };
+		B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */ = {isa = PBXBuildFile; fileRef = B4C8F0931CBCE90100F02BA4 /* lsscp.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +24,10 @@
 
 /* Begin PBXFileReference section */
 		B4C8F0901CBCE90100F02BA4 /* HO-Project2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "HO-Project2"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B4C8F0931CBCE90100F02BA4 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		B4C8F0931CBCE90100F02BA4 /* lsscp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lsscp.c; sourceTree = "<group>"; };
+		B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lsscp.h; sourceTree = "<group>"; };
+		B4C8F09B1CBCEC3A00F02BA4 /* best.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = best.txt; path = ../../../Assignment1/best.txt; sourceTree = "<group>"; };
+		B4C8F09C1CBCEC3A00F02BA4 /* SCP-Instances */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "SCP-Instances"; path = "../../../Assignment1/SCP-Instances"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +60,10 @@
 		B4C8F0921CBCE90100F02BA4 /* HO-Project2 */ = {
 			isa = PBXGroup;
 			children = (
-				B4C8F0931CBCE90100F02BA4 /* main.c */,
+				B4C8F09C1CBCEC3A00F02BA4 /* SCP-Instances */,
+				B4C8F09B1CBCEC3A00F02BA4 /* best.txt */,
+				B4C8F0931CBCE90100F02BA4 /* lsscp.c */,
+				B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */,
 			);
 			path = "HO-Project2";
 			sourceTree = "<group>";
@@ -118,7 +124,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4C8F0941CBCE90100F02BA4 /* main.c in Sources */,
+				B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
