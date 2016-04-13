@@ -13,6 +13,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "utils.h"
 #include "lsscp.h"
 
 /***********************/
@@ -27,7 +28,17 @@
 int seed = 1234567;
 char* instance_file = "";
 char* output_file = "output.txt";
+clock_t start_time;
+
+int ant_count = 20;
+float beta = 5.0;
+float ro = 0.99;
+float epsilon = 0.005;
+float tau_min = 0;
+float tau_max = 0;
+
 instance_t* inst;
+ant_t** colony;
 
 /*** Read parameters from command line ***/
 void readParameters(int argc, char* argv[]) {
@@ -115,30 +126,427 @@ void errorExit(char* text) {
     exit(EXIT_FAILURE);
 }
 
-/*** Allocate memory ***/
-void* mymalloc(size_t size) {
-    void *s;
-    if ((s=malloc(size)) == NULL) {
-        fprintf(stderr, "malloc : Not enough memory.\n");
-        exit(EXIT_FAILURE);
+/*** Prints diagnostic information about the solution **/
+void diagnostics(ant_t* ant) {
+    for (int i = 0; i < inst->m; i++) {
+        if (ant->y[i]) {
+            printf("ELEMENT %d COVERED BY %d SET(S)\n", i, ant->ncol_cover[i]);
+            for (int j = 0; j < ant->ncol_cover[i]; j++) {
+                if (ant->col_cover[i][j] < 0) {
+                    printf("---\n");
+                    break;
+                } else {
+                    printf("---SET %d\n", ant->col_cover[i][j]);
+                }
+            }
+        } else {
+            printf("ELEMENT %d NOT COVERED\n", i);
+        }
     }
-    return s;
 }
 
 /*** Initialize other algorithm parameters ***/
-void initialize() {}
+void initialize() {
+    colony = (ant_t**) mymalloc(ant_count * sizeof(ant_t*));
+    for (int a = 0; a < ant_count; a++) {
+        colony[a] = (ant_t*) mymalloc(sizeof(ant_t));
+        ant_t* ant = colony[a];
+        ant->fx = 0;
+        ant->un_rows = inst->m;
+        ant->x = (int*) mymalloc(inst->n * sizeof(int));
+        ant->y = (int*) mymalloc(inst->m * sizeof(int));
+        ant->col_cover = (int**) mymalloc(inst->m * sizeof(int*));
+        ant->ncol_cover = (int*) mymalloc(inst->m * sizeof(int));
+        ant->pheromone = (float*) mymalloc(inst->n * sizeof(float));
+        ant->heuristic = (float*) mymalloc(inst->n * sizeof(float));
+        for (int i = 0; i < inst->n; i++) {
+            ant->x[i] = 0;
+            ant->pheromone[i] = (float) rand() / (float) RAND_MAX;
+            ant->heuristic[i] = adaptiveCost(ant, i);
+        }
+        for (int i = 0; i < inst->m; i++) {
+            ant->y[i] = 0;
+            ant->ncol_cover[i] = 0;
+            int k = inst->ncol[i];
+            ant->col_cover[i] = (int*) mymalloc(k * sizeof(int));
+            for (int j = 0; j < k; j++) {
+                ant->col_cover[i][j] = -1;
+            }
+        }
+    }
+}
 
 /*** Use this function to finalize execution **/
 void finalize() {
-    free((void*) inst);
+    for (int a = 0; a < ant_count; a++) {
+        ant_t* ant = colony[a];
+        free((void*) ant->x);
+        free((void*) ant->y);
+        free((void*) ant->col_cover);
+        free((void*) ant->ncol_cover);
+        free((void*) ant->pheromone);
+        free((void*) ant->heuristic);
+        free((void*) ant);
+    }
+    free((void*) colony);
 }
 
+
+/****************/
+/** ACO-Method **/
+/****************/
+
+/** Heuristic information methods **/
+float adaptiveCost(ant_t* ant, int col) {
+    unsigned int covers = 0;
+    for (int i = 0; i < inst->nrow[col]; i++) {
+        if (!ant->y[inst->row[col][i]]) {
+            covers += 1;
+        }
+    }
+    return (float) covers / (float) inst->cost[col];
+}
+
+void updateHeuristic(ant_t* ant) {
+    for (int i = 0; i < inst->n; i++) {
+        if (!ant->x[i]) {
+            float h = adaptiveCost(ant, i);
+            ant->heuristic[i] = h;
+        }
+    }
+}
+
+/** Constructive methods **/
+// 4.1 SROM:
+// Randomly select an uncovered row i
+// From the set of columns covering row i,
+// select column j with probability:
+//   pheromone[j]*(heuristic[j]**beta) / Sum_q (pheromone[q]*(heuristic[q]**beta))
+// and add column j to the solution.
+unsigned int pickRandom(unsigned int min, unsigned int max) {
+    int r;
+    const unsigned int range = 1 + max - min;
+    const unsigned int buckets = RAND_MAX / range;
+    const unsigned int limit = buckets * range;
+    
+    /* Create equal size buckets all in a row, then fire randomly towards
+     * the buckets until you land in one of them. All buckets are equally
+     * likely. If you land off the end of the line of buckets, try again. */
+    do {
+        r = rand();
+    } while (r >= limit);
+    
+    return min + (r / buckets);
+}
+
+int randomFromPDF(float* probabilities, int len) {
+    float r = (float) rand() / (float) RAND_MAX;
+    float cummulative = 0;
+    int idx;
+    for (int i = 0; i < len; i++) {
+        cummulative += probabilities[i];
+        if (r <= cummulative) {
+            idx = i;
+            break;
+        }
+    }
+    return idx;
+}
+
+void addSet(ant_t* ant, int col) {
+    ant->x[col] = 1;
+    ant->fx += inst->cost[col];
+    for (int i = 0; i < inst->nrow[col]; i++) {
+        int row = inst->row[col][i];
+        ant->ncol_cover[row] += 1;
+        if (!ant->y[row]) {
+            ant->y[row] = 1;
+            ant->un_rows -= 1;
+        }
+        for (int j = 0; j < inst->ncol[row]; j++) {
+            if (ant->col_cover[row][j] < 0) {
+                ant->col_cover[row][j] = col;
+                break;
+            }
+        }
+    }
+}
+
+void constructSolution(ant_t* ant) {
+    int row = -1;
+    while (row < 0) {
+        int idx = pickRandom(0, inst->m-1);
+        if (!ant->y[idx]) {
+            row = idx;
+        }
+    }
+    
+    float denom = 0;
+    for (int i = 0; i < inst->ncol[row]; i++) {
+        int col = inst->col[row][i];
+        denom += ant->pheromone[col] * powf(ant->heuristic[col], beta);
+    }
+    float* probabilities = (float*) mymalloc(inst->ncol[row] * sizeof(float));
+    for (int i = 0; i < inst->ncol[row]; i++) {
+        int col = inst->col[row][i];
+        float nom = ant->pheromone[col] * powf(ant->heuristic[col], beta);
+        probabilities[i] = nom / denom;
+    }
+    // TODO: Sum of probabilities is not 1!
+    // So, check calculations and update of heuristic value!
+    
+    int col = -1;
+    while (col < 0) {
+        int idx = randomFromPDF(probabilities, inst->ncol[row]);
+        if (!ant->x[inst->col[row][idx]]) {
+            col = inst->col[row][idx];
+        }
+    }
+    addSet(ant, col);
+    updateHeuristic(ant);
+    free((void*) probabilities);
+}
+
+/** Local Search methods **/
+void initAnt(ant_t* new, ant_t* old) {
+    new->fx = old->fx;
+    new->un_rows = old->un_rows;
+    new->x = (int*) mymalloc(inst->n * sizeof(int));
+    new->y = (int*) mymalloc(inst->m * sizeof(int));
+    new->col_cover = (int**) mymalloc(inst->m * sizeof(int*));
+    new->ncol_cover = (int*) mymalloc(inst->m * sizeof(int));
+    new->pheromone = (float*) mymalloc(inst->n * sizeof(float));
+    new->heuristic = (float*) mymalloc(inst->n * sizeof(float));
+    for (int i = 0; i < inst->n; i++) {
+        new->x[i] = old->x[i];
+        new->pheromone[i] = old->pheromone[i];
+        new->heuristic[i] = old->heuristic[i];
+    }
+    for (int i = 0; i < inst->m; i++) {
+        new->y[i] = old->x[i];
+        new->ncol_cover[i] = old->ncol_cover[i];
+        int k = inst->ncol[i];
+        new->col_cover[i] = (int*) mymalloc(k * sizeof(int));
+        for (int j = 0; j < k; j++) {
+            new->col_cover[i][j] = old->col_cover[i][j];
+        }
+    }
+}
+
+void copyAnt(ant_t* from, ant_t* to) {
+    to->fx = from->fx;
+    to->un_rows = from->un_rows;
+    for (int i = 0; i < inst->n; i++) {
+        to->x[i] = from->x[i];
+        to->pheromone[i] = from->pheromone[i];
+        to->heuristic[i] = from->heuristic[i];
+    }
+    for (int i = 0; i < inst->m; i++) {
+        to->y[i] = from->y[i];
+        to->ncol_cover[i] = from->ncol_cover[i];
+        for (int j = 0; j < inst->ncol[i]; j++) {
+            to->col_cover[i][j] = from->col_cover[i][j];
+        }
+    }
+}
+
+void shift(ant_t* ant, int row, int start) {
+    for (int i = start; i < ant->ncol_cover[row]; i++) {
+        if (i+1 < ant->ncol_cover[row]) {
+            if (ant->col_cover[row][i+1] >= 0) {
+                ant->col_cover[row][i] = ant->col_cover[row][i+1];
+            } else {
+                ant->col_cover[row][i] = -1;
+                break;
+            }
+        } else {
+            ant->col_cover[row][i] = -1;
+        }
+    }
+}
+
+void removeSet(ant_t* ant, int col) {
+    ant->x[col] = 0;
+    ant->fx -= inst->cost[col];
+    for (int i = 0; i < inst->nrow[col]; i++) {
+        int row = inst->row[col][i];
+        for (int j = 0; j < ant->ncol_cover[row]; j++) {
+            if (ant->col_cover[row][j] == col) {
+                ant->col_cover[row][j] = -1;
+                shift(ant, row, j);
+                break;
+            }
+        }
+        ant->ncol_cover[row] -= 1;
+        if (ant->ncol_cover[row] <= 0) {
+            ant->un_rows += 1;
+            ant->y[row] = 0;
+        }
+    }
+}
+
+int cmp(const void* a, const void* b) {
+    int val;
+    int cost_a = inst->cost[*(int*) a];
+    int cost_b = inst->cost[*(int*) b];
+    if (cost_a != cost_b) {
+        val = cost_b - cost_a;
+    } else {
+        int cover_a = inst->nrow[*(int*) a];
+        int cover_b = inst->nrow[*(int*) b];
+        val = cover_a - cover_b;
+    }
+    return val;
+}
+
+void eliminate(ant_t* ant) {
+    int redundant = 1;
+    int improvement = 1;
+    
+    int* sortedCols = (int*) mymalloc(inst->n * sizeof(int));
+    for (int i = 0; i < inst->n; i++) {
+        sortedCols[i] = i;
+    }
+    qsort(sortedCols, inst->n, sizeof(int), cmp);
+    
+    while (improvement) {
+        improvement = 0;
+        for (int i = 0; i < inst->n; i++) {
+            int col = sortedCols[i];
+            if (ant->x[col]) {
+                redundant = 1;
+                for (int j = 0; j < inst->nrow[col]; j++) {
+                    int row = inst->row[col][j];
+                    if (ant->ncol_cover[row] <= 1) {
+                        redundant = 0;
+                        break;
+                    }
+                }
+                if (redundant) {
+                    removeSet(ant, col);
+                    improvement = 1;
+                }
+            }
+        }
+    }
+    free((void*) sortedCols);
+}
+
+void localSearch(ant_t* ant) {
+    int improvement = 1;
+    ant_t* antcpy = (ant_t*) mymalloc(sizeof(ant_t));
+    initAnt(antcpy, ant);
+    while (improvement) {
+        improvement = 0;
+        for (int i = 0; i < inst->n; i++) {
+            if (antcpy->x[i]) {
+                removeSet(antcpy, i);
+                while (!isSolution(antcpy)) {
+                    constructSolution(antcpy);
+                }
+                if (antcpy->fx < ant->fx) {
+                    copyAnt(antcpy, ant);
+                    improvement = 1;
+                    eliminate(ant);
+                } else {
+                    copyAnt(ant, antcpy);
+                }
+            }
+        }
+    }
+    free((void*) antcpy);
+}
+
+/** Check if there is a new best solution **/
+void updateBestSolution() {}
+
+/** Pheromone update methods **/
+void updatePheromone() {}
+
+int isSolution(ant_t* ant) {
+    return (ant->un_rows <= 0);
+}
+
+void solve() {
+    while (computeTime(start_time, clock()) < 120.0) {
+        for (int a = 0; a < ant_count; a++) {
+            ant_t* ant = colony[a];
+            while (!isSolution(ant)) {
+                constructSolution(ant);
+            }
+            eliminate(ant);
+            localSearch(ant);
+        }
+        updateBestSolution();
+        updatePheromone();
+    }
+}
+
+void test() {
+    ant_t* ant = mymalloc(sizeof(ant_t));
+    ant->fx = 0;
+    ant->un_rows = inst->m;
+    ant->x = (int*) mymalloc(inst->n * sizeof(int));
+    ant->y = (int*) mymalloc(inst->m * sizeof(int));
+    ant->col_cover = (int**) mymalloc(inst->m * sizeof(int*));
+    ant->ncol_cover = (int*) mymalloc(inst->m * sizeof(int));
+    ant->pheromone = (float*) mymalloc(inst->n * sizeof(float));
+    ant->heuristic = (float*) mymalloc(inst->n * sizeof(float));
+    for (int i = 0; i < inst->n; i++) {
+        ant->x[i] = 0;
+        ant->pheromone[i] = (float) rand() / (float) RAND_MAX;
+        ant->heuristic[i] = adaptiveCost(ant, i);
+    }
+    for (int i = 0; i < inst->m; i++) {
+        ant->y[i] = 0;
+        ant->ncol_cover[i] = 0;
+        int k = inst->ncol[i];
+        ant->col_cover[i] = (int*) mymalloc(k * sizeof(int));
+        for (int j = 0; j < k; j++) {
+            ant->col_cover[i][j] = -1;
+        }
+    }
+    while (!isSolution(ant)) {
+        constructSolution(ant);
+    }
+    printf("Cost of solution: %d\n", ant->fx);
+    eliminate(ant);
+    printf("Cost of solution after RE: %d\n", ant->fx);
+    localSearch(ant);
+    printf("Cost of solution after FI: %d\n", ant->fx);
+}
+
+// 1. (Preprocess SCP instance)
+// 2. (Langrangian multiplier with subgradient method)
+// 3. Initiliaze pheromone trails and related parameters
+// 4. While not termination:
+//      For each ant:
+//        4.1 Construct a solution (SROM)
+//        4.2 Apply local search
+//      4.3 Update pheromones
+//      (If best solution not improved for p iterations:
+//        4.4 New Langrangian multiplier with subgradient method)
+// 5. Return the best solution
+
+// 1. Preprocess:
+// For each column j:
+//   lows = [] (size = #rows covered by j)
+//   For each row i covered by column j:
+//      For each column k that covers row i:
+//         Get the lowest column k, i.e. low_i
+//         Add low_i to lows
+//   If sum(cost(lows)) < cost(j), delete column j
+//   Re-initialize lows
+
 int main(int argc, char* argv[]) {
+    start_time = clock();
     readParameters(argc, argv);
     readSCP(instance_file);
-    initialize();
     srand(seed);
+    initialize();
     // Do some stuff here!
+    test();
+        
     finalize();
     return 0;
 }

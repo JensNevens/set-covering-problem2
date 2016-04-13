@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B411835E1CBE70F8000C7557 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B411835C1CBE70F8000C7557 /* utils.c */; };
 		B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */ = {isa = PBXBuildFile; fileRef = B4C8F0931CBCE90100F02BA4 /* lsscp.c */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B411835B1CBE707A000C7557 /* data.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = data.h; sourceTree = "<group>"; };
+		B411835C1CBE70F8000C7557 /* utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utils.c; sourceTree = "<group>"; };
+		B411835D1CBE70F8000C7557 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		B4C8F0901CBCE90100F02BA4 /* HO-Project2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "HO-Project2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4C8F0931CBCE90100F02BA4 /* lsscp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lsscp.c; sourceTree = "<group>"; };
 		B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lsscp.h; sourceTree = "<group>"; };
@@ -64,6 +68,9 @@
 				B4C8F09B1CBCEC3A00F02BA4 /* best.txt */,
 				B4C8F0931CBCE90100F02BA4 /* lsscp.c */,
 				B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */,
+				B411835B1CBE707A000C7557 /* data.h */,
+				B411835C1CBE70F8000C7557 /* utils.c */,
+				B411835D1CBE70F8000C7557 /* utils.h */,
 			);
 			path = "HO-Project2";
 			sourceTree = "<group>";
@@ -125,6 +132,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */,
+				B411835E1CBE70F8000C7557 /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +253,7 @@
 				B4C8F0991CBCE90100F02BA4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
