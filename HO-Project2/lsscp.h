@@ -21,11 +21,11 @@ void finalize();
 
 // ACO-Methods
 //    Heuristic information
-float adaptiveCost(ant_t* ant, int col);
+double adaptiveCost(ant_t* ant, int col);
 
 //    Constructive methods
 unsigned int pickRandom(unsigned int min, unsigned int max);
-int randomFromPDF(float* probabilities, int len);
+int randomFromPDF(double* probabilities, int len);
 void constructSolution(ant_t* ant);
 
 //    Local Search methods
@@ -38,6 +38,8 @@ int cmp(const void* a, const void* b);
 void eliminate(ant_t* ant);
 
 //    Update best solution
+void updateOptimal(ant_t* ant);
+void updateTau(optimal_t* opt);
 void updateBest();
 
 //    Update pheromone trails
