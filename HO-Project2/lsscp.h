@@ -11,26 +11,39 @@
 
 #include "data.h"
 
+// SCP methods
 void readParameters(int argc, char* argv[]);
 void readSCP(char* filename);
 void errorExit(char* text);
+void diagnostics(ant_t* ant);
 void initialize();
 void finalize();
 
 // ACO-Methods
+//    Heuristic information
+float adaptiveCost(ant_t* ant, int col);
+
+//    Constructive methods
 unsigned int pickRandom(unsigned int min, unsigned int max);
 int randomFromPDF(float* probabilities, int len);
-void addSet(ant_t* ant, int col);
 void constructSolution(ant_t* ant);
 
+//    Local Search methods
+void initAnt(ant_t* new, ant_t* old);
+void copyAnt(ant_t* from, ant_t* to);
 void localSearch(ant_t* ant);
 
+//    Redudancy elimination
+int cmp(const void* a, const void* b);
+void eliminate(ant_t* ant);
+
+//    Update best solution
+void updateBest();
+
+//    Update pheromone trails
 void updatePheromone();
 
-float adaptiveCost(ant_t* ant, int col);
-void updateHeuristic(ant_t* ant);
-
-int isSolution(ant_t* ant);
+// General methods
 void solve();
 int main(int argc, char* argv[]);
 

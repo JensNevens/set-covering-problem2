@@ -9,7 +9,11 @@
 #ifndef utils_h
 #define utils_h
 
+#include "data.h"
+
 void* mymalloc(size_t size);
 double computeTime(clock_t start, clock_t end);
+int totalCost(instance_t* inst);
+int columnCovers(instance_t* inst, int col, int row);
 
 #endif /* utils_h */

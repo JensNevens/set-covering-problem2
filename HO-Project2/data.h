@@ -31,7 +31,6 @@ struct Ant {
     int* ncol_cover; // ncol_cover[i] contains number of selected columns that cover row i
     int un_rows;     // the amount of un-covered rows
     float* pheromone;  // pheromone[i] contains the amount of pheromone for column i
-    float* heuristic;  // heuristic[i] contains the heuristic value for column i
 };
 
 typedef struct Ant ant_t;

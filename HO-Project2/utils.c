@@ -29,3 +29,22 @@ void* mymalloc(size_t size) {
 double computeTime(clock_t start, clock_t end) {
     return 1000.0 * (end - start)/CLOCKS_PER_SEC;
 }
+
+/*** Computes cost of all columns in the instance ***/
+int totalCost(instance_t* inst) {
+    int total = 0;
+    for (int i = 0; i < inst->n; i++) {
+        total += inst->cost[i];
+    }
+    return total;
+}
+
+/*** Checks if column 'col' covers element 'row' ***/
+int columnCovers(instance_t* inst, int col, int row) {
+    for (int i = 0; i < inst->nrow[col]; i++) {
+        if (row == inst->row[col][i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
