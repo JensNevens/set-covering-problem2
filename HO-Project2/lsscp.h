@@ -29,8 +29,6 @@ int randomFromPDF(double* probabilities, int len);
 void constructSolution(ant_t* ant);
 
 //    Local Search methods
-void initAnt(ant_t* new, ant_t* old);
-void copyAnt(ant_t* from, ant_t* to);
 void localSearch(ant_t* ant);
 
 //    Redudancy elimination

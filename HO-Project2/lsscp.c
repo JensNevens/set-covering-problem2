@@ -85,7 +85,7 @@ void readSCP(char* filename) {
     int h,i,j;
     int* k;
     FILE* fp = fopen(filename, "r");
-    inst = (instance_t*) mymalloc(sizeof(instance_t));
+    inst = mymalloc(sizeof(instance_t));
     
     if (!fp)
         errorExit("ERROR: Error in opening the file.\n");
@@ -94,18 +94,18 @@ void readSCP(char* filename) {
     if (fscanf(fp,"%d",&inst->n) != 1) /* number of columns */
         errorExit("ERROR: Error reading number of columns.\n");
     // Cost of the n columns
-    inst->cost = (int*) mymalloc(inst->n * sizeof(int));
+    inst->cost = mymalloc(inst->n * sizeof(int));
     for (j = 0; j < inst->n; j++)
         if (fscanf(fp,"%d",&inst->cost[j]) != 1)
             errorExit("ERROR: Error reading cost.\n");
     
     // Info of columns that cover each row
-    inst->col  = (int**) mymalloc(inst->m * sizeof(int*));
-    inst->ncol = (int*) mymalloc(inst->m * sizeof(int));
+    inst->col  = mymalloc(inst->m * sizeof(int*));
+    inst->ncol = mymalloc(inst->m * sizeof(int));
     for (i = 0; i < inst->m; i++) {
         if (fscanf(fp,"%d",&inst->ncol[i]) != 1)
             errorExit("ERROR: Error reading number of columns.\n");
-        inst->col[i] = (int *) mymalloc(inst->ncol[i] * sizeof(int));
+        inst->col[i] = mymalloc(inst->ncol[i] * sizeof(int));
         for (h = 0; h < inst->ncol[i]; h++) {
             if(fscanf(fp,"%d",&inst->col[i][h]) != 1)
                 errorExit("ERROR: Error reading columns.\n");
@@ -113,16 +113,16 @@ void readSCP(char* filename) {
         }
     }
     // Info of rows that are covered by each column
-    inst->row  = (int**) mymalloc(inst->n * sizeof(int*));
-    inst->nrow = (int*) mymalloc(inst->n * sizeof(int));
-    k    = (int*) mymalloc(inst->n * sizeof(int));
+    inst->row  = mymalloc(inst->n * sizeof(int*));
+    inst->nrow = mymalloc(inst->n * sizeof(int));
+    k = mymalloc(inst->n * sizeof(int));
     for (j = 0; j < inst->n; j++) inst->nrow[j] = 0;
     for (i = 0; i < inst->m; i++) {
         for (h = 0; h < inst->ncol[i]; h++)
             inst->nrow[inst->col[i][h]]++;
     }
     for (j = 0; j < inst->n; j++) {
-        inst->row[j] = (int *) mymalloc(inst->nrow[j] * sizeof(int));
+        inst->row[j] = mymalloc(inst->nrow[j] * sizeof(int));
         k[j] = 0;
     }
     for (i = 0; i < inst->m; i++) {
@@ -131,7 +131,7 @@ void readSCP(char* filename) {
             k[inst->col[i][h]]++;
         }
     }
-    free((void*) k);
+    free(k);
 }
 
 /*** Exit from code with error message ***/
@@ -167,7 +167,7 @@ void initialize() {
     tau_min = epsilon * tau_max;
     
     // Initialize the optimal solution
-    opt = (optimal_t*) mymalloc(sizeof(optimal_t));
+    opt = mymalloc(sizeof(optimal_t));
     opt->fx = INT32_MAX;
     opt->x = mymalloc(inst->n * sizeof(int));
     for (int i = 0; i < inst->n; i++) {
@@ -175,17 +175,13 @@ void initialize() {
     }
     
     // Initialize the ant colony
-    colony = (ant_t**) mymalloc(ant_count * sizeof(ant_t*));
+    colony = mymalloc(ant_count * sizeof(ant_t*));
     for (int a = 0; a < ant_count; a++) {
-        colony[a] = (ant_t*) mymalloc(sizeof(ant_t));
+        colony[a] = mymalloc(sizeof(ant_t));
         ant_t* ant = colony[a];
+        allocAnt(inst, ant);
         ant->fx = 0;
         ant->un_rows = inst->m;
-        ant->x = (int*) mymalloc(inst->n * sizeof(int));
-        ant->y = (int*) mymalloc(inst->m * sizeof(int));
-        ant->col_cover = (int**) mymalloc(inst->m * sizeof(int*));
-        ant->ncol_cover = (int*) mymalloc(inst->m * sizeof(int));
-        ant->pheromone = (double*) mymalloc(inst->n * sizeof(double));
         for (int i = 0; i < inst->n; i++) {
             ant->x[i] = 0;
             ant->pheromone[i] = tau_max;
@@ -194,7 +190,6 @@ void initialize() {
             ant->y[i] = 0;
             ant->ncol_cover[i] = 0;
             int k = inst->ncol[i];
-            ant->col_cover[i] = (int*) mymalloc(k * sizeof(int));
             for (int j = 0; j < k; j++) {
                 ant->col_cover[i][j] = -1;
             }
@@ -203,18 +198,31 @@ void initialize() {
 }
 
 /*** Use this function to finalize execution **/
+void freeInstance(instance_t* inst) {
+    for (int i = 0; i < inst->m; i++) {
+        free(inst->col[i]);
+    }
+    for (int i = 0; i < inst->n; i++) {
+        free(inst->row[i]);
+    }
+    free(inst->col);
+    free(inst->row);
+    free(inst->ncol);
+    free(inst->nrow);
+    free(inst->cost);
+}
+
 void finalize() {
     for (int a = 0; a < ant_count; a++) {
         ant_t* ant = colony[a];
-        free((void*) ant->x);
-        free((void*) ant->y);
-        free((void*) ant->col_cover);
-        free((void*) ant->ncol_cover);
-        free((void*) ant->pheromone);
-        free((void*) ant);
+        freeAnt(inst, ant);
+        free(ant);
     }
-    free((void*) colony);
-    free((void*) inst);
+    free(colony);
+    freeInstance(inst);
+    free(inst);
+    free(opt->x);
+    free(opt);
 }
 
 
@@ -286,7 +294,7 @@ void constructSolution(ant_t* ant) {
         int col = inst->col[row][i];
         denom += ant->pheromone[col] * powf(adaptiveCost(ant, col), beta);
     }
-    double* probabilities = (double*) mymalloc(inst->n * sizeof(double));
+    double* probabilities = mymalloc(inst->n * sizeof(double));
     for (int i = 0; i < inst->n; i++) {
         if (columnCovers(inst, i, row)) {
             double nom = ant->pheromone[i] * powf(adaptiveCost(ant, i), beta);
@@ -304,44 +312,16 @@ void constructSolution(ant_t* ant) {
         }
     }
     addSet(inst, ant, col);
-    free((void*) probabilities);
+    free(probabilities);
 }
 
 /** Local Search methods **/
-void initAnt(ant_t* new, ant_t* old) {
-    new->fx = old->fx;
-    new->un_rows = old->un_rows;
-    new->x = (int*) mymalloc(inst->n * sizeof(int));
-    new->y = (int*) mymalloc(inst->m * sizeof(int));
-    new->col_cover = (int**) mymalloc(inst->m * sizeof(int*));
-    new->ncol_cover = (int*) mymalloc(inst->m * sizeof(int));
-    new->pheromone = (double*) mymalloc(inst->n * sizeof(double));
-    for (int i = 0; i < inst->m; i++) {
-        new->col_cover[i] = (int*) mymalloc(inst->ncol[i] * sizeof(int));
-    }
-}
-
-void copyAnt(ant_t* from, ant_t* to) {
-    to->fx = from->fx;
-    to->un_rows = from->un_rows;
-    for (int i = 0; i < inst->n; i++) {
-        to->x[i] = from->x[i];
-        to->pheromone[i] = from->pheromone[i];
-    }
-    for (int i = 0; i < inst->m; i++) {
-        to->y[i] = from->y[i];
-        to->ncol_cover[i] = from->ncol_cover[i];
-        for (int j = 0; j < inst->ncol[i]; j++) {
-            to->col_cover[i][j] = from->col_cover[i][j];
-        }
-    }
-}
-
 /*** First Improvement local search method ***/
 void localSearch(ant_t* ant) {
     int improvement = 1;
-    ant_t* antcpy = (ant_t*) mymalloc(sizeof(ant_t));
-    initAnt(antcpy, ant);
+    ant_t* antcpy = mymalloc(sizeof(ant_t));
+    allocAnt(inst, antcpy);
+    copyAnt(inst, ant, antcpy);
     while (improvement) {
         improvement = 0;
         for (int i = 0; i < inst->n; i++) {
@@ -351,16 +331,17 @@ void localSearch(ant_t* ant) {
                     constructSolution(antcpy);
                 }
                 if (antcpy->fx < ant->fx) {
-                    copyAnt(antcpy, ant);
+                    copyAnt(inst, antcpy, ant);
                     improvement = 1;
                     eliminate(ant);
                 } else {
-                    copyAnt(ant, antcpy);
+                    copyAnt(inst, ant, antcpy);
                 }
             }
         }
     }
-    free((void*) antcpy);
+    freeAnt(inst, antcpy);
+    free(antcpy);
 }
 
 /*** Redundancy elimination ***/
@@ -382,7 +363,7 @@ void eliminate(ant_t* ant) {
     int redundant = 1;
     int improvement = 1;
     
-    int* sortedCols = (int*) mymalloc(inst->n * sizeof(int));
+    int* sortedCols = mymalloc(inst->n * sizeof(int));
     for (int i = 0; i < inst->n; i++) {
         sortedCols[i] = i;
     }
@@ -408,7 +389,7 @@ void eliminate(ant_t* ant) {
             }
         }
     }
-    free((void*) sortedCols);
+    free(sortedCols);
 }
 
 /** Check if there is a new best solution **/
@@ -435,7 +416,6 @@ void updateBest() {
             bestAntCost = ant->fx;
         }
     }
-    printf("Best ant is %d with cost %d\n", bestAnt, bestAntCost);
     if (bestAntCost < opt->fx) {
         updateOptimal(colony[bestAnt]);
         updateTau(opt);
@@ -502,15 +482,14 @@ void solve() {
 // Update test for colony, in stead of single ant
 void test() {
     int ctr = 0;
-    while (ctr < 100) {
+    while (ctr < 50) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while(!isSolution(ant)) {
                 constructSolution(ant);
             }
             eliminate(ant);
-            //localSearch(ant);
-            printf("Cost for ant %d is: %d\n", a, ant->fx);
+            localSearch(ant);
         }
         updateBest();
         updatePheromone();
@@ -544,6 +523,10 @@ void test() {
 // For each row i:
 //   if only 1 column covers row i:
 //      Add this column to the solution of each ant
+
+// TODO: Modulerize code
+// TODO: Implement preprocess + add flag (--pre)
+// TODO: Also add BI (and local search from paper)
 
 int main(int argc, char* argv[]) {
     start_time = clock();

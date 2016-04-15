@@ -16,4 +16,8 @@ void removeSet(instance_t* inst, ant_t* ant, int col);
 void shift(ant_t* ant, int row, int start);
 int isSolution(ant_t* ant);
 
+void allocAnt(instance_t* inst, ant_t* ant);
+void freeAnt(instance_t* inst, ant_t* ant);
+void copyAnt(instance_t* inst, ant_t* src, ant_t* dest);
+
 #endif /* ant_h */

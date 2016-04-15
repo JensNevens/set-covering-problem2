@@ -13,6 +13,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "utils.h"
 #include "ant.h"
 
 /*** Add set 'col' to the partial solution of the ant ***/
@@ -75,6 +76,47 @@ void removeSet(instance_t* inst, ant_t* ant, int col) {
 /*** Check if current solution of the ant is a valid solution ***/
 int isSolution(ant_t* ant) {
     return (ant->un_rows <= 0);
+}
+
+/*** Allocate memory for a single ant ***/
+void allocAnt(instance_t* inst, ant_t* ant) {
+    ant->x = mymalloc(inst->n * sizeof(int));
+    ant->y = mymalloc(inst->m * sizeof(int));
+    ant->col_cover = mymalloc(inst->m * sizeof(int*));
+    ant->ncol_cover = mymalloc(inst->m * sizeof(int));
+    ant->pheromone = mymalloc(inst->n * sizeof(double));
+    for (int i = 0; i < inst->m; i++) {
+        ant->col_cover[i] = mymalloc(inst->ncol[i] * sizeof(int));
+    }
+}
+
+/*** Free all memory for a single ant ***/
+void freeAnt(instance_t* inst, ant_t* ant) {
+    for (int i = 0; i < inst->m; i++) {
+        free(ant->col_cover[i]);
+    }
+    free(ant->col_cover);
+    free(ant->pheromone);
+    free(ant->ncol_cover);
+    free(ant->y);
+    free(ant->x);
+}
+
+/*** Deep copy one ant to another ***/
+void copyAnt(instance_t* inst, ant_t* src, ant_t* dest) {
+    dest->fx = src->fx;
+    dest->un_rows = src->un_rows;
+    for (int i = 0; i < inst->n; i++) {
+        dest->x[i] = src->x[i];
+        dest->pheromone[i] = src->pheromone[i];
+    }
+    for (int i = 0; i < inst->m; i++) {
+        dest->y[i] = src->y[i];
+        dest->ncol_cover[i] = src->ncol_cover[i];
+        for (int j = 0; j < inst->ncol[i]; j++) {
+            dest->col_cover[i][j] = src->col_cover[i][j];
+        }
+    }
 }
 
 
