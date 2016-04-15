@@ -414,7 +414,7 @@ void clearColony() {
 /*** General methods ***/
 void solve() {
     int iterCount = 0;
-    while (computeTime(start_time, clock()) < 120.0) {
+    while (computeTime(start_time, clock()) < 60.0) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while (!isSolution(ant)) {
@@ -480,7 +480,8 @@ void test() {
 
 // TODO: Modulerize code
 // TODO: Implement preprocess + add flag (--pre)
-// TODO: Also add BI (and local search from paper)
+// TODO: Add additional local search methods (BI, paper)?
+// TODO: Add additional constructive methods (ch1, ch2, ch3, ch4)?
 
 int main(int argc, char* argv[]) {
     readParameters(argc, argv);
@@ -490,6 +491,7 @@ int main(int argc, char* argv[]) {
     // Do some stuff here!
     start_time = clock();
     solve();
+    printf("%d\n", opt->fx);
         
     finalize();
     return 0;
