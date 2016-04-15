@@ -140,25 +140,6 @@ void errorExit(char* text) {
     exit(EXIT_FAILURE);
 }
 
-/*** Prints diagnostic information about the solution **/
-void diagnostics(ant_t* ant) {
-    for (int i = 0; i < inst->m; i++) {
-        if (ant->y[i]) {
-            printf("ELEMENT %d COVERED BY %d SET(S)\n", i, ant->ncol_cover[i]);
-            for (int j = 0; j < ant->ncol_cover[i]; j++) {
-                if (ant->col_cover[i][j] < 0) {
-                    printf("---\n");
-                    break;
-                } else {
-                    printf("---SET %d\n", ant->col_cover[i][j]);
-                }
-            }
-        } else {
-            printf("ELEMENT %d NOT COVERED\n", i);
-        }
-    }
-}
-
 /*** Initialize other algorithm parameters ***/
 void initialize() {
     // Compute tau_max ant tau_min
@@ -242,38 +223,6 @@ double adaptiveCost(ant_t* ant, int col) {
 }
 
 /** Constructive methods **/
-unsigned int pickRandom(unsigned int min, unsigned int max) {
-    int r;
-    const unsigned int range = 1 + max - min;
-    const unsigned int buckets = RAND_MAX / range;
-    const unsigned int limit = buckets * range;
-    
-    /* Create equal size buckets all in a row, then fire randomly towards
-     * the buckets until you land in one of them. All buckets are equally
-     * likely. If you land off the end of the line of buckets, try again. */
-    do {
-        r = rand();
-    } while (r >= limit);
-    
-    return min + (r / buckets);
-}
-
-/*** Select a random element according to a probability density function ***/
-int randomFromPDF(double* probabilities, int len) {
-    double r = (double) rand() / (double) RAND_MAX;
-    double cummulative = 0;
-    int idx;
-    for (int i = 0; i < len; i++) {
-        cummulative += probabilities[i];
-        if (r <= cummulative) {
-            idx = i;
-            break;
-        }
-    }
-    return idx;
-}
-
-/*** Construct a solution ***/
 // 4.1 SROM:
 // Randomly select an uncovered row i
 // From the set of columns covering row i,
@@ -464,6 +413,7 @@ void clearColony() {
 
 /*** General methods ***/
 void solve() {
+    int iterCount = 0;
     while (computeTime(start_time, clock()) < 120.0) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
@@ -476,13 +426,17 @@ void solve() {
         updateBest();
         updatePheromone();
         clearColony();
+        printf("Iteration %d, time elapsed: %f\n",
+               iterCount,
+               computeTime(start_time, clock()));
+        iterCount++;
     }
 }
 
 // Update test for colony, in stead of single ant
 void test() {
     int ctr = 0;
-    while (ctr < 50) {
+    while (ctr < 20) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while(!isSolution(ant)) {
@@ -529,13 +483,13 @@ void test() {
 // TODO: Also add BI (and local search from paper)
 
 int main(int argc, char* argv[]) {
-    start_time = clock();
     readParameters(argc, argv);
     readSCP(instance_file);
     srand(seed);
     initialize();
     // Do some stuff here!
-    test();
+    start_time = clock();
+    solve();
         
     finalize();
     return 0;

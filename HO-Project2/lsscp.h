@@ -15,7 +15,6 @@
 void readParameters(int argc, char* argv[]);
 void readSCP(char* filename);
 void errorExit(char* text);
-void diagnostics(ant_t* ant);
 void initialize();
 void finalize();
 
@@ -24,8 +23,6 @@ void finalize();
 double adaptiveCost(ant_t* ant, int col);
 
 //    Constructive methods
-unsigned int pickRandom(unsigned int min, unsigned int max);
-int randomFromPDF(double* probabilities, int len);
 void constructSolution(ant_t* ant);
 
 //    Local Search methods
