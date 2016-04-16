@@ -18,14 +18,21 @@ do
     rm ${f}
 done
 
+# Write header to output file
+echo "instance, cost, time" >> "$3/aco.txt"
+
 # Run ACO
 for instance in "$2"/*
 do
-    y=${instance%.txt} # get instance name
-    cost=$(eval "$1 --seed $seed --instance $instance") #This can use additional parameters
+    y=${instance%.txt}
+    output=$(eval "$1 --seed $seed --instance $instance --rep")
+
     filename=${y##*/}
     length=${#filename}
     first=$(echo ${filename:3:$length-4} | awk '{print toupper($0)}')
     second=${filename:$length-1:1}
-    echo "$first.$second $cost" >> "$3/aco.txt"
+
+    cost=${output%-*}
+    time=${output#*-}
+    echo "$first.$second, $cost, $time" >> "$3/aco.txt"
 done

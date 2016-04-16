@@ -268,9 +268,8 @@ void constructSolution(ant_t* ant) {
 }
 
 /** Local Search methods **/
-// FI finds optimal faster (for 4.2), i.e. 14 iterations
-// REP finds optimal slower (for 4.2), i.e. 63 iterations
-// BUT REP runs a lot faster than FI!
+// FI needs more time to find optimal solution
+// but less iterations, since REP iterates faster
 void localSearch(ant_t* ant) {
     if (fi) {
         eliminate(ant);
@@ -452,9 +451,9 @@ void eliminate(ant_t* ant) {
 
 /** Check if there is a new best solution **/
 void updateOptimal(ant_t* ant) {
+    opt->time = computeTime(start_time, clock());
     opt->fx = ant->fx;
     for (int i = 0; i < inst->n; i++) opt->x[i] = ant->x[i];
-    printf("New optimal cost is %d\n", opt->fx);
 }
 
 void updateTau(optimal_t* opt) {
@@ -513,9 +512,17 @@ void clearColony() {
 
 
 /*** General methods ***/
+// 1. Preprocess SCP instance
+// 2. Initiliaze pheromone trails and related parameters
+// 3. While not termination:
+//      For each ant:
+//        3.1 Construct a solution
+//        3.2 Apply local search
+//      3.3 Update optimal solution
+//      3.4 Update pheromones
 void solve() {
     int iterCount = 0;
-    while (computeTime(start_time, clock()) < 20) {
+    while (computeTime(start_time, clock()) < 10) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while (!isSolution(ant)) {
@@ -526,14 +533,14 @@ void solve() {
         updateBest();
         updatePheromone();
         clearColony();
-        printf("Iteration %d, time elapsed: %f\n",
+        /*printf("Iteration: %d - time elapsed: %f - optimal cost: %d\n",
                iterCount,
-               computeTime(start_time, clock()));
+               computeTime(start_time, clock()),
+               opt->fx);*/
         iterCount++;
     }
 }
 
-// Update test for colony, in stead of single ant
 void test() {
     int ctr = 0;
     while (ctr < 20) {
@@ -551,18 +558,6 @@ void test() {
     }
 }
 
-// 1. (Preprocess SCP instance)
-// 2. (Langrangian multiplier with subgradient method)
-// 3. Initiliaze pheromone trails and related parameters
-// 4. While not termination:
-//      For each ant:
-//        4.1 Construct a solution (SROM)
-//        4.2 Apply local search
-//      4.3 Update pheromones
-//      (If best solution not improved for p iterations:
-//        4.4 New Langrangian multiplier with subgradient method)
-// 5. Return the best solution
-
 // 1. Preprocess:
 // For each column j:
 //   lows = [] (size = #rows covered by j)
@@ -577,8 +572,7 @@ void test() {
 //   if only 1 column covers row i:
 //      Add this column to the solution of each ant
 
-
-// TODO: Implement preprocess + add flag (--pre)
+// TODO: Implement preprocess?
 // TODO: Modulerize code
 // TODO: Add additional local search methods (BI)?
 // TODO: Add additional constructive methods (ch1, ch2, ch3, ch4)?
@@ -591,7 +585,7 @@ int main(int argc, char* argv[]) {
     
     start_time = clock();
     solve();
-    printf("%d\n", opt->fx);
+    printf("%d-%f\n", opt->fx, opt->time);
     
     finalize();
     return 0;

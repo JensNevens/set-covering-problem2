@@ -36,8 +36,9 @@ typedef struct Ant ant_t;
 
 // Optimal solution struct
 struct Optimal {
-    int* x;  // x[i] 0,1 if column i is selected
-    int fx;  // sum of cost of columns selected in the solution
+    int* x;       // x[i] 0,1 if column i is selected
+    int fx;       // sum of cost of columns selected in the solution
+    double time;  // Number of seconds after which this solution has been found
 };
 
 typedef struct Optimal optimal_t;
