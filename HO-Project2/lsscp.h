@@ -27,9 +27,12 @@ void constructSolution(ant_t* ant);
 
 //    Local Search methods
 void localSearch(ant_t* ant);
+void replaceColumns(ant_t* ant);
+void firstImprovement(ant_t* ant);
 
 //    Redudancy elimination
-int cmp(const void* a, const void* b);
+int sortDesc(const void* a, const void* b);
+int sortAsc(const void* a, const void* b);
 void eliminate(ant_t* ant);
 
 //    Update best solution

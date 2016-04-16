@@ -30,7 +30,7 @@
 		B411835D1CBE70F8000C7557 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		B4135DAC1CBF8DC200614BC9 /* ant.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ant.c; sourceTree = "<group>"; };
 		B4135DAD1CBF8DC200614BC9 /* ant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ant.h; sourceTree = "<group>"; };
-		B49EF5AC1CC0E2BB00C67257 /* run.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = run.sh; sourceTree = "<group>"; };
+		B45A0D2A1CC127580049BF8B /* run.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = run.sh; sourceTree = "<group>"; };
 		B49EF5AD1CC0E87900C67257 /* ACO-output */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "ACO-output"; sourceTree = "<group>"; };
 		B49EF5AE1CC0E87900C67257 /* best.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = best.txt; sourceTree = "<group>"; };
 		B49EF5AF1CC0E87900C67257 /* SCP-Instances */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "SCP-Instances"; sourceTree = "<group>"; };
@@ -69,6 +69,7 @@
 		B4C8F0921CBCE90100F02BA4 /* HO-Project2 */ = {
 			isa = PBXGroup;
 			children = (
+				B45A0D2A1CC127580049BF8B /* run.sh */,
 				B49EF5AD1CC0E87900C67257 /* ACO-output */,
 				B49EF5AE1CC0E87900C67257 /* best.txt */,
 				B49EF5AF1CC0E87900C67257 /* SCP-Instances */,
@@ -79,7 +80,6 @@
 				B411835D1CBE70F8000C7557 /* utils.h */,
 				B4135DAC1CBF8DC200614BC9 /* ant.c */,
 				B4135DAD1CBF8DC200614BC9 /* ant.h */,
-				B49EF5AC1CC0E2BB00C67257 /* run.sh */,
 			);
 			path = "HO-Project2";
 			sourceTree = "<group>";
@@ -172,7 +172,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -216,7 +216,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -254,7 +254,7 @@
 				B4C8F0961CBCE90100F02BA4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		B4C8F0971CBCE90100F02BA4 /* Build configuration list for PBXNativeTarget "HO-Project2" */ = {
 			isa = XCConfigurationList;
@@ -263,7 +263,7 @@
 				B4C8F0991CBCE90100F02BA4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};

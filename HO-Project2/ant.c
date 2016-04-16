@@ -84,7 +84,6 @@ void allocAnt(instance_t* inst, ant_t* ant) {
     ant->y = mymalloc(inst->m * sizeof(int));
     ant->col_cover = mymalloc(inst->m * sizeof(int*));
     ant->ncol_cover = mymalloc(inst->m * sizeof(int));
-    ant->pheromone = mymalloc(inst->n * sizeof(double));
     for (int i = 0; i < inst->m; i++) {
         ant->col_cover[i] = mymalloc(inst->ncol[i] * sizeof(int));
     }
@@ -96,7 +95,6 @@ void freeAnt(instance_t* inst, ant_t* ant) {
         free(ant->col_cover[i]);
     }
     free(ant->col_cover);
-    free(ant->pheromone);
     free(ant->ncol_cover);
     free(ant->y);
     free(ant->x);
@@ -108,7 +106,6 @@ void copyAnt(instance_t* inst, ant_t* src, ant_t* dest) {
     dest->un_rows = src->un_rows;
     for (int i = 0; i < inst->n; i++) {
         dest->x[i] = src->x[i];
-        dest->pheromone[i] = src->pheromone[i];
     }
     for (int i = 0; i < inst->m; i++) {
         dest->y[i] = src->y[i];

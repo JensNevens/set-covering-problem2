@@ -30,7 +30,6 @@ struct Ant {
     int** col_cover;    // col_colver[i] contains selected columns that cover row i
     int* ncol_cover;    // ncol_cover[i] contains number of selected columns that cover row i
     int un_rows;        // the amount of un-covered rows
-    double* pheromone;  // pheromone[i] contains the amount of pheromone for column i
 };
 
 typedef struct Ant ant_t;
@@ -49,6 +48,8 @@ extern double ro;
 extern double epsilon;
 extern double tau_min;
 extern double tau_max;
-
+extern double* pheromone;
+extern int fi;
+extern int rep;
 
 #endif /* data_h */

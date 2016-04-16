@@ -41,6 +41,9 @@ double tau_max = 0;
 instance_t* inst;
 ant_t** colony;
 optimal_t* opt;
+double* pheromone;
+
+int fi, rep = 0;
 
 /*** Read parameters from command line ***/
 void readParameters(int argc, char* argv[]) {
@@ -70,6 +73,10 @@ void readParameters(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "--epsilon") == 0) {
             epsilon = atof(argv[i+1]);
             i += 1;
+        } else if (strcmp(argv[i], "--fi") == 0) {
+            fi = 1;
+        } else if (strcmp(argv[i], "--rep") == 0) {
+            rep = 1;
         } else {
             printf("ERROR: parameter %s not recognized.\n", argv[i]);
             exit(EXIT_FAILURE);
@@ -147,12 +154,16 @@ void initialize() {
     tau_max = (double) 1 / (double) ((1 - ro) * cost);
     tau_min = epsilon * tau_max;
     
+    // Initialize pheromone trail
+    pheromone = mymalloc(inst->n * sizeof(double));
+    
     // Initialize the optimal solution
     opt = mymalloc(sizeof(optimal_t));
     opt->fx = INT32_MAX;
     opt->x = mymalloc(inst->n * sizeof(int));
     for (int i = 0; i < inst->n; i++) {
         opt->x[i] = 0;
+        pheromone[i] = tau_max;
     }
     
     // Initialize the ant colony
@@ -163,29 +174,20 @@ void initialize() {
         allocAnt(inst, ant);
         ant->fx = 0;
         ant->un_rows = inst->m;
-        for (int i = 0; i < inst->n; i++) {
-            ant->x[i] = 0;
-            ant->pheromone[i] = tau_max;
-        }
+        for (int i = 0; i < inst->n; i++) ant->x[i] = 0;
         for (int i = 0; i < inst->m; i++) {
             ant->y[i] = 0;
             ant->ncol_cover[i] = 0;
             int k = inst->ncol[i];
-            for (int j = 0; j < k; j++) {
-                ant->col_cover[i][j] = -1;
-            }
+            for (int j = 0; j < k; j++) ant->col_cover[i][j] = -1;
         }
     }
 }
 
 /*** Use this function to finalize execution **/
 void freeInstance(instance_t* inst) {
-    for (int i = 0; i < inst->m; i++) {
-        free(inst->col[i]);
-    }
-    for (int i = 0; i < inst->n; i++) {
-        free(inst->row[i]);
-    }
+    for (int i = 0; i < inst->m; i++) free(inst->col[i]);
+    for (int i = 0; i < inst->n; i++) free(inst->row[i]);
     free(inst->col);
     free(inst->row);
     free(inst->ncol);
@@ -204,6 +206,7 @@ void finalize() {
     free(inst);
     free(opt->x);
     free(opt);
+    free(pheromone);
 }
 
 
@@ -241,12 +244,12 @@ void constructSolution(ant_t* ant) {
     double denom = 0;
     for (int i = 0; i < inst->ncol[row]; i++) {
         int col = inst->col[row][i];
-        denom += ant->pheromone[col] * powf(adaptiveCost(ant, col), beta);
+        denom += pheromone[col] * powf(adaptiveCost(ant, col), beta);
     }
     double* probabilities = mymalloc(inst->n * sizeof(double));
     for (int i = 0; i < inst->n; i++) {
         if (columnCovers(inst, i, row)) {
-            double nom = ant->pheromone[i] * powf(adaptiveCost(ant, i), beta);
+            double nom = pheromone[i] * powf(adaptiveCost(ant, i), beta);
             probabilities[i] = nom / denom;
         } else {
             probabilities[i] = 0;
@@ -265,8 +268,102 @@ void constructSolution(ant_t* ant) {
 }
 
 /** Local Search methods **/
-/*** First Improvement local search method ***/
+// FI finds optimal faster (for 4.2), i.e. 14 iterations
+// REP finds optimal slower (for 4.2), i.e. 63 iterations
+// BUT REP runs a lot faster than FI!
 void localSearch(ant_t* ant) {
+    if (fi) {
+        eliminate(ant);
+        firstImprovement(ant);
+    } else if (rep) {
+        replaceColumns(ant);
+    }
+}
+
+/*** Local Search method described in Ren et al.'s paper ***/
+int computeWj(ant_t* ant, int* Wj, int col) {
+    int idx = 0;
+    for (int i = 0; i < inst->m; i++) {
+        int ncol_cover = ant->ncol_cover[i];
+        int thecol = ant->col_cover[i][0];
+        if (ncol_cover == 1 && thecol == col) {
+            Wj[idx] = i;
+            idx += 1;
+        }
+    }
+    return idx;
+}
+
+int getLow(int row) {
+    int col = -1;
+    int colCost = INT32_MAX;
+    for (int i = 0; i < inst->ncol[row]; i++) {
+        if (inst->cost[inst->col[row][i]] < colCost) {
+            col = inst->col[row][i];
+            colCost = inst->cost[col];
+        }
+    }
+    return col;
+}
+
+// Sort columns with high cost first
+// For each column j:
+//     Compute Wj (Wj contains the rows that are only covered by column j)
+//     If |Wj| = 0:
+//         Column j is redundant, remove it;
+//     If |Wj| = 1 and cost(j) > cost(low_q): (low_q is the lowest cost column covering row q)
+//         Replace j with low_q;
+//     If |Wj| = 2 and j != low_q1 == low_q2:
+//         Replace j with low_q1 (or low_q2, since they are equal)
+//     If |Wj] = 2 and low_q1 != low_q2 and cost(low_q1) + cost(low_q2) < cost(j):
+//         Replace j with low_q1 and low_q2
+void replaceColumns(ant_t* ant) {
+    // Sort columns
+    int* sortedCols = mymalloc(inst->n * sizeof(int));
+    for (int i = 0; i < inst->n; i++) sortedCols[i] = i;
+    qsort(sortedCols, inst->n, sizeof(int), sortDesc);
+    
+    // Initiliaze Wj
+    int* Wj = mymalloc(inst->m * sizeof(int));
+    for (int i = 0; i < inst->m; i++) Wj[i] = -1;
+    
+    // Local Search
+    for (int j = 0; j < inst->n; j++) {
+        int col = sortedCols[j];
+        if (ant->x[col]) {
+            int WjCount = computeWj(ant, Wj, col);
+            if (WjCount == 0) {
+                removeSet(inst, ant, col);
+            } else if (WjCount == 1) {
+                int low = getLow(Wj[0]);
+                if (inst->cost[col] > inst->cost[low]) {
+                    removeSet(inst, ant, col);
+                    addSet(inst, ant, low);
+                }
+            } else if (WjCount == 2) {
+                int low1 = getLow(Wj[0]);
+                int low2 = getLow(Wj[1]);
+                if (low1 == low2 && low1 != col) {
+                    removeSet(inst, ant, col);
+                    addSet(inst, ant, low1);
+                } else if (low1 != low2 &&
+                           inst->cost[low1] + inst->cost[low2] < inst->cost[col]) {
+                    removeSet(inst, ant, col);
+                    addSet(inst, ant, low1);
+                    addSet(inst, ant, low2);
+                }
+            }
+            // Empty Wj
+            for (int i = 0; i < inst->m; i++) Wj[i] = -1;
+        }
+    }
+    // Free memory
+    free(sortedCols);
+    free(Wj);
+}
+
+/*** First Improvement local search method ***/
+void firstImprovement(ant_t* ant) {
     int improvement = 1;
     ant_t* antcpy = mymalloc(sizeof(ant_t));
     allocAnt(inst, antcpy);
@@ -294,7 +391,7 @@ void localSearch(ant_t* ant) {
 }
 
 /*** Redundancy elimination ***/
-int cmp(const void* a, const void* b) {
+int sortDesc(const void* a, const void* b) {
     int val;
     int cost_a = inst->cost[*(int*) a];
     int cost_b = inst->cost[*(int*) b];
@@ -308,15 +405,27 @@ int cmp(const void* a, const void* b) {
     return val;
 }
 
+int sortAsc(const void* a, const void* b) {
+    int val;
+    int cost_a = inst->cost[*(int*) a];
+    int cost_b = inst->cost[*(int*) b];
+    if (cost_a != cost_b) {
+        val = cost_a - cost_b;
+    } else {
+        int cover_a = inst->nrow[*(int*) a];
+        int cover_b = inst->nrow[*(int*) b];
+        val = cover_b - cover_a;
+    }
+    return val;
+}
+
 void eliminate(ant_t* ant) {
     int redundant = 1;
     int improvement = 1;
     
     int* sortedCols = mymalloc(inst->n * sizeof(int));
-    for (int i = 0; i < inst->n; i++) {
-        sortedCols[i] = i;
-    }
-    qsort(sortedCols, inst->n, sizeof(int), cmp);
+    for (int i = 0; i < inst->n; i++) sortedCols[i] = i;
+    qsort(sortedCols, inst->n, sizeof(int), sortDesc);
     
     while (improvement) {
         improvement = 0;
@@ -344,9 +453,7 @@ void eliminate(ant_t* ant) {
 /** Check if there is a new best solution **/
 void updateOptimal(ant_t* ant) {
     opt->fx = ant->fx;
-    for (int i = 0; i < inst->n; i++) {
-        opt->x[i] = ant->x[i];
-    }
+    for (int i = 0; i < inst->n; i++) opt->x[i] = ant->x[i];
     printf("New optimal cost is %d\n", opt->fx);
 }
 
@@ -373,33 +480,27 @@ void updateBest() {
 
 /*** Pheromone update methods **/
 void updatePheromone() {
-    for (int a = 0; a < ant_count; a++) {
-        ant_t* ant = colony[a];
-        for (int i = 0; i < inst->n; i++) {
-            ant->pheromone[i] = (double) ro * ant->pheromone[i];
-            if (opt->x[i]) {
-                ant->pheromone[i] += (double) 1 / (double) opt->fx;
-            }
-            if (ant->pheromone[i] < tau_min) {
-                ant->pheromone[i] = tau_min;
-            }
-            if (ant->pheromone[i] > tau_max) {
-                ant->pheromone[i] = tau_max;
-            }
+    for (int i = 0; i < inst->n; i++) {
+        pheromone[i] = (double) ro * pheromone[i];
+        if (opt->x[i]) {
+            pheromone[i] += (double) 1 / (double) opt->fx;
+        }
+        if (pheromone[i] < tau_min) {
+            pheromone[i] = tau_min;
+        }
+        if (pheromone[i] > tau_max) {
+            pheromone[i] = tau_max;
         }
     }
 }
 
 /*** Clear all ant's solutions ***/
-// Clear the ant's solution, except the pheromone!
 void clearColony() {
     for (int a = 0; a < ant_count; a++) {
         ant_t* ant = colony[a];
         ant->fx = 0;
         ant->un_rows = inst->m;
-        for (int i = 0; i < inst->n; i++) {
-            ant->x[i] = 0;
-        }
+        for (int i = 0; i < inst->n; i++) ant->x[i] = 0;
         for (int i = 0; i < inst->m; i++) {
             ant->y[i] = 0;
             ant->ncol_cover[i] = 0;
@@ -414,13 +515,12 @@ void clearColony() {
 /*** General methods ***/
 void solve() {
     int iterCount = 0;
-    while (computeTime(start_time, clock()) < 60.0) {
+    while (computeTime(start_time, clock()) < 20) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while (!isSolution(ant)) {
                 constructSolution(ant);
             }
-            eliminate(ant);
             localSearch(ant);
         }
         updateBest();
@@ -442,7 +542,6 @@ void test() {
             while(!isSolution(ant)) {
                 constructSolution(ant);
             }
-            eliminate(ant);
             localSearch(ant);
         }
         updateBest();
@@ -478,9 +577,10 @@ void test() {
 //   if only 1 column covers row i:
 //      Add this column to the solution of each ant
 
-// TODO: Modulerize code
+
 // TODO: Implement preprocess + add flag (--pre)
-// TODO: Add additional local search methods (BI, paper)?
+// TODO: Modulerize code
+// TODO: Add additional local search methods (BI)?
 // TODO: Add additional constructive methods (ch1, ch2, ch3, ch4)?
 
 int main(int argc, char* argv[]) {
@@ -488,11 +588,11 @@ int main(int argc, char* argv[]) {
     readSCP(instance_file);
     srand(seed);
     initialize();
-    // Do some stuff here!
+    
     start_time = clock();
     solve();
     printf("%d\n", opt->fx);
-        
+    
     finalize();
     return 0;
 }
