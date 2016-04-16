@@ -25,7 +25,7 @@ echo "instance, cost, time" >> "$3/aco.txt"
 for instance in "$2"/*
 do
     y=${instance%.txt}
-    output=$(eval "$1 --seed $seed --instance $instance --rep")
+    output=$(eval "$1 --seed $seed --instance $instance --aco --rep")
 
     filename=${y##*/}
     length=${#filename}

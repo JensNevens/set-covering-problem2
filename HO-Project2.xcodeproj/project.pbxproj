@@ -10,6 +10,8 @@
 		B411835E1CBE70F8000C7557 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = B411835C1CBE70F8000C7557 /* utils.c */; };
 		B4135DAE1CBF8DC200614BC9 /* ant.c in Sources */ = {isa = PBXBuildFile; fileRef = B4135DAC1CBF8DC200614BC9 /* ant.c */; };
 		B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */ = {isa = PBXBuildFile; fileRef = B4C8F0931CBCE90100F02BA4 /* lsscp.c */; };
+		B4F693711CC2861C00255544 /* aco.c in Sources */ = {isa = PBXBuildFile; fileRef = B4F6936F1CC2861C00255544 /* aco.c */; };
+		B4F693741CC28F3300255544 /* genetic.c in Sources */ = {isa = PBXBuildFile; fileRef = B4F693721CC28F3300255544 /* genetic.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +39,10 @@
 		B4C8F0901CBCE90100F02BA4 /* HO-Project2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "HO-Project2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4C8F0931CBCE90100F02BA4 /* lsscp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lsscp.c; sourceTree = "<group>"; };
 		B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lsscp.h; sourceTree = "<group>"; };
+		B4F6936F1CC2861C00255544 /* aco.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aco.c; sourceTree = "<group>"; };
+		B4F693701CC2861C00255544 /* aco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aco.h; sourceTree = "<group>"; };
+		B4F693721CC28F3300255544 /* genetic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = genetic.c; sourceTree = "<group>"; };
+		B4F693731CC28F3300255544 /* genetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = genetic.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +86,10 @@
 				B411835D1CBE70F8000C7557 /* utils.h */,
 				B4135DAC1CBF8DC200614BC9 /* ant.c */,
 				B4135DAD1CBF8DC200614BC9 /* ant.h */,
+				B4F6936F1CC2861C00255544 /* aco.c */,
+				B4F693701CC2861C00255544 /* aco.h */,
+				B4F693721CC28F3300255544 /* genetic.c */,
+				B4F693731CC28F3300255544 /* genetic.h */,
 			);
 			path = "HO-Project2";
 			sourceTree = "<group>";
@@ -140,7 +150,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4F693741CC28F3300255544 /* genetic.c in Sources */,
 				B4135DAE1CBF8DC200614BC9 /* ant.c in Sources */,
+				B4F693711CC2861C00255544 /* aco.c in Sources */,
 				B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */,
 				B411835E1CBE70F8000C7557 /* utils.c in Sources */,
 			);

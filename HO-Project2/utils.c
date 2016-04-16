@@ -13,6 +13,8 @@
 #include <math.h>
 #include <string.h>
 
+#include "lsscp.h"
+#include "ant.h"
 #include "utils.h"
 
 /*** Allocate memory ***/
@@ -79,4 +81,36 @@ int randomFromPDF(double* probabilities, int len) {
         }
     }
     return idx;
+}
+
+/*** Redundancy elimination ***/
+void eliminate(instance_t* inst, ant_t* ant) {
+    int redundant = 1;
+    int improvement = 1;
+    
+    int* sortedCols = mymalloc(inst->n * sizeof(int));
+    for (int i = 0; i < inst->n; i++) sortedCols[i] = i;
+    qsort(sortedCols, inst->n, sizeof(int), sortDesc);
+    
+    while (improvement) {
+        improvement = 0;
+        for (int i = 0; i < inst->n; i++) {
+            int col = sortedCols[i];
+            if (ant->x[col]) {
+                redundant = 1;
+                for (int j = 0; j < inst->nrow[col]; j++) {
+                    int row = inst->row[col][j];
+                    if (ant->ncol_cover[row] <= 1) {
+                        redundant = 0;
+                        break;
+                    }
+                }
+                if (redundant) {
+                    removeSet(inst, ant, col);
+                    improvement = 1;
+                }
+            }
+        }
+    }
+    free(sortedCols);
 }

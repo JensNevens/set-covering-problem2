@@ -43,6 +43,7 @@ struct Optimal {
 
 typedef struct Optimal optimal_t;
 
+extern clock_t start_time;
 extern int ant_count;
 extern double beta;
 extern double ro;
@@ -50,6 +51,8 @@ extern double epsilon;
 extern double tau_min;
 extern double tau_max;
 extern double* pheromone;
+extern int aco;
+extern int ga;
 extern int fi;
 extern int rep;
 
