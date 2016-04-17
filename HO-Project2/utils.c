@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "lsscp.h"
-#include "ant.h"
+#include "solution.h"
 #include "utils.h"
 
 /*** Allocate memory ***/

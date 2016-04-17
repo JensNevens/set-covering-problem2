@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "utils.h"
-#include "ant.h"
+#include "solution.h"
 #include "lsscp.h"
 #include "aco.h"
 
@@ -49,7 +49,7 @@ void ACOinitialize(instance_t* inst) {
     for (int a = 0; a < ant_count; a++) {
         colony[a] = mymalloc(sizeof(ant_t));
         ant_t* ant = colony[a];
-        allocAnt(inst, ant);
+        allocSolution(inst, ant);
         ant->fx = 0;
         ant->un_rows = inst->m;
         for (int i = 0; i < inst->n; i++) ant->x[i] = 0;
@@ -65,7 +65,7 @@ void ACOinitialize(instance_t* inst) {
 void ACOfinalize(instance_t* inst) {
     for (int a = 0; a < ant_count; a++) {
         ant_t* ant = colony[a];
-        freeAnt(inst, ant);
+        freeSolution(inst, ant);
         free(ant);
     }
     free(colony);
@@ -227,8 +227,8 @@ void replaceColumns(instance_t* inst, ant_t* ant) {
 void firstImprovement(instance_t* inst, ant_t* ant) {
     int improvement = 1;
     ant_t* antcpy = mymalloc(sizeof(ant_t));
-    allocAnt(inst, antcpy);
-    copyAnt(inst, ant, antcpy);
+    allocSolution(inst, antcpy);
+    copySolution(inst, ant, antcpy);
     while (improvement) {
         improvement = 0;
         for (int i = 0; i < inst->n; i++) {
@@ -238,16 +238,16 @@ void firstImprovement(instance_t* inst, ant_t* ant) {
                     constructSolution(inst, antcpy);
                 }
                 if (antcpy->fx < ant->fx) {
-                    copyAnt(inst, antcpy, ant);
+                    copySolution(inst, antcpy, ant);
                     improvement = 1;
                     eliminate(inst, ant);
                 } else {
-                    copyAnt(inst, ant, antcpy);
+                    copySolution(inst, ant, antcpy);
                 }
             }
         }
     }
-    freeAnt(inst, antcpy);
+    freeSolution(inst, antcpy);
     free(antcpy);
 }
 

@@ -23,7 +23,7 @@ struct Instance {
 typedef struct Instance instance_t;
 
 // Solution struct
-struct Ant {
+struct Solution {
     int* x;             // x[i] 0,1 if column i is selected
     int* y;             // y[i] 0,1 if row i covered by the actual solution
     int fx;             // sum of the cost of the columns selected in the solution
@@ -32,7 +32,9 @@ struct Ant {
     int un_rows;        // the amount of un-covered rows
 };
 
-typedef struct Ant ant_t;
+typedef struct Solution solution_t;
+typedef struct Solution ant_t;
+typedef struct Solution inidividual_t;
 
 // Optimal solution struct
 struct Optimal {
@@ -44,6 +46,7 @@ struct Optimal {
 typedef struct Optimal optimal_t;
 
 extern clock_t start_time;
+
 extern int ant_count;
 extern double beta;
 extern double ro;
@@ -51,6 +54,14 @@ extern double epsilon;
 extern double tau_min;
 extern double tau_max;
 extern double* pheromone;
+
+extern int offspring_size;
+extern int population_size;
+extern int Mf;
+extern int Mc;
+extern int Mg;
+extern int offspring_count;
+
 extern int aco;
 extern int ga;
 extern int fi;

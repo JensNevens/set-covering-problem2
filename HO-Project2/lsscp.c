@@ -155,7 +155,7 @@ void initialize() {
     if (aco) {
         ACOinitialize(inst);
     } else if (ga) {
-        GENinitialize();
+        GENinitialize(inst);
     }
 }
 
@@ -174,12 +174,12 @@ void finalize() {
     if (aco) {
         ACOfinalize(inst);
     } else if (ga) {
-        GENfinalize();
+        GENfinalize(inst);
     }
-    freeInstance(inst);
-    free(inst);
     free(opt->x);
     free(opt);
+    freeInstance(inst);
+    free(inst);
 }
 
 /*** Sorting functions ***/
@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
     if (aco) {
         ACOsolve(inst, opt);
     } else if (ga) {
-        GENsolve();
+        GENsolve(inst, opt);
     }
     printf("%d-%f\n", opt->fx, opt->time);
     
