@@ -14,6 +14,36 @@
 void GENinitialize(instance_t* inst);
 void GENfinalize(instance_t* inst);
 
+// GA Methods
+//     Constructive methods
+void constructIndv(instance_t* inst, inidividual_t* indv);
+
+//     Parent Selection methods
+void selectParents(int* parents);
+void tournamentSelection(int* parents);
+void proportionateSelection(int* parents);
+
+//     Crossover operators
+void crossover(instance_t* inst, int parent1, int parent2, int* child);
+void uniformCross(instance_t* inst, int parent1, int parent2, int* child);
+void fusionCross(instance_t* inst, int parent1, int parent2, int* child);
+
+//     Mutation operators
+void mutate(instance_t* inst, int* child);
+
+//     Create Individual
+void createIndv(instance_t* inst, int* child, inidividual_t* indv);
+
+//     Make Individual valid
+double coverCost(instance_t* inst, inidividual_t* indv, int col);
+void makeFeasible(instance_t* inst, inidividual_t* indv);
+
+//     Replace an Individual
+void replaceIndv(instance_t* inst, inidividual_t* newIndv);
+
+//     Update best solution
+void updateBestIndv(instance_t* inst, optimal_t* opt);
+
 // General methods
 void GENsolve(instance_t* inst, optimal_t* opt);
 

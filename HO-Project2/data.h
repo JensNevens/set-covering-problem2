@@ -57,14 +57,19 @@ extern double* pheromone;
 
 extern int offspring_size;
 extern int population_size;
-extern int Mf;
-extern int Mc;
-extern int Mg;
+extern double Mf;
+extern double Mc;
+extern double Mg;
 extern int offspring_count;
+extern int pool_size;
 
 extern int aco;
 extern int ga;
 extern int fi;
 extern int rep;
+extern int tour;
+extern int prop;
+extern int uniform;
+extern int fusion;
 
 #endif /* data_h */

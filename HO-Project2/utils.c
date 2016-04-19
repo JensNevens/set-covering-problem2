@@ -84,7 +84,7 @@ int randomFromPDF(double* probabilities, int len) {
 }
 
 /*** Redundancy elimination ***/
-void eliminate(instance_t* inst, ant_t* ant) {
+void eliminate(instance_t* inst, solution_t* sol) {
     int redundant = 1;
     int improvement = 1;
     
@@ -96,17 +96,17 @@ void eliminate(instance_t* inst, ant_t* ant) {
         improvement = 0;
         for (int i = 0; i < inst->n; i++) {
             int col = sortedCols[i];
-            if (ant->x[col]) {
+            if (sol->x[col]) {
                 redundant = 1;
                 for (int j = 0; j < inst->nrow[col]; j++) {
                     int row = inst->row[col][j];
-                    if (ant->ncol_cover[row] <= 1) {
+                    if (sol->ncol_cover[row] <= 1) {
                         redundant = 0;
                         break;
                     }
                 }
                 if (redundant) {
-                    removeSet(inst, ant, col);
+                    removeSet(inst, sol, col);
                     improvement = 1;
                 }
             }

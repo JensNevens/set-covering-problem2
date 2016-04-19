@@ -36,7 +36,7 @@ instance_t* inst;
 optimal_t* opt;
 
 // Flags
-int aco, ga, fi, rep = 0;
+int aco, ga, fi, rep, tour, prop, uniform, fusion = 0;
 
 /*** Read parameters from command line ***/
 void readParameters(int argc, char* argv[]) {
@@ -55,16 +55,40 @@ void readParameters(int argc, char* argv[]) {
             output_file = argv[i+1];
             i += 1;
         } else if (strcmp(argv[i], "--ac") == 0) {
+            // Number of ants
             ant_count = atoi(argv[i+1]);
             i += 1;
         } else if (strcmp(argv[i], "--beta") == 0) {
+            // Value for beta
             beta = atof(argv[i+1]);
             i += 1;
         } else if (strcmp(argv[i], "--ro") == 0) {
+            // Value for ro
             ro = atof(argv[i+1]);
             i += 1;
         } else if (strcmp(argv[i], "--epsilon") == 0) {
+            // Value for epsilon
             epsilon = atof(argv[i+1]);
+            i += 1;
+        } else if (strcmp(argv[i], "--pops") == 0) {
+            // Population size
+            population_size = atoi(argv[i+1]);
+            i += 1;
+        } else if (strcmp(argv[i], "--mf") == 0) {
+            // M_f
+            Mf = atof(argv[i+1]);
+            i += 1;
+        } else if (strcmp(argv[i], "--mc") == 0) {
+            // M_c
+            Mc = atof(argv[i+1]);
+            i += 1;
+        } else if (strcmp(argv[i], "--mg") == 0) {
+            // M_g
+            Mg = atof(argv[i+1]);
+            i += 1;
+        } else if (strcmp(argv[i], "--pool") == 0) {
+            // Pool size
+            pool_size = atoi(argv[i+1]);
             i += 1;
         } else if (strcmp(argv[i], "--aco") == 0) {
             aco = 1;
@@ -74,6 +98,14 @@ void readParameters(int argc, char* argv[]) {
             fi = 1;
         } else if (strcmp(argv[i], "--rep") == 0) {
             rep = 1;
+        } else if (strcmp(argv[i], "--tour") == 0) {
+            tour = 1;
+        } else if (strcmp(argv[i], "--prop") == 0) {
+            prop = 1;
+        } else if (strcmp(argv[i], "--uniform") == 0) {
+            uniform = 1;
+        } else if (strcmp(argv[i], "--fusion") == 0) {
+            fusion = 1;
         } else {
             printf("ERROR: parameter %s not recognized.\n", argv[i]);
             exit(EXIT_FAILURE);
@@ -216,12 +248,13 @@ int sortAsc(const void* a, const void* b) {
 
 /*** MAIN ***/
 int main(int argc, char* argv[]) {
+    start_time = clock();
+    
     readParameters(argc, argv);
     readSCP(instance_file);
     srand(seed);
     initialize();
     
-    start_time = clock();
     if (aco) {
         ACOsolve(inst, opt);
     } else if (ga) {

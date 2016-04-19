@@ -20,4 +20,6 @@ void allocSolution(instance_t* inst, solution_t* sol);
 void freeSolution(instance_t* inst, solution_t* sol);
 void copySolution(instance_t* inst, solution_t* src, solution_t* dest);
 
+void updateOptimal(instance_t* inst, optimal_t* opt, solution_t* sol);
+
 #endif /* ant_h */

@@ -16,10 +16,10 @@ void ACOfinalize(instance_t* inst);
 
 // ACO-Methods
 //     Heuristic information
-double adaptiveCost(instance_t* inst, ant_t* ant, int col);
+double heuristicValue(instance_t* inst, ant_t* ant, int col);
 
 //     Constructive methods
-void constructSolution(instance_t* inst, ant_t* ant);
+void constructAnt(instance_t* inst, ant_t* ant);
 
 //     Local Search
 void localSearch(instance_t* inst, ant_t* ant);
@@ -31,9 +31,8 @@ void replaceColumns(instance_t* inst, ant_t* ant);
 void firstImprovement(instance_t* inst, ant_t* ant);
 
 //     Update best solution
-void updateOptimal(instance_t* inst, optimal_t* opt, ant_t* ant);
 void updateTau(optimal_t* opt);
-void updateBest(instance_t* inst, optimal_t* opt);
+void updateBestAnt(instance_t* inst, optimal_t* opt);
 
 //     Update pheromone trails
 void updatePheromone(instance_t* inst, optimal_t* opt);

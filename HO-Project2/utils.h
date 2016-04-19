@@ -17,6 +17,6 @@ int totalCost(instance_t* inst);
 int columnCovers(instance_t* inst, int col, int row);
 unsigned int pickRandom(unsigned int min, unsigned int max);
 int randomFromPDF(double* probabilities, int len);
-void eliminate(instance_t* inst, ant_t* ant);
+void eliminate(instance_t* inst, inidividual_t* indv);
 
 #endif /* utils_h */

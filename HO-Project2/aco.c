@@ -77,8 +77,8 @@ void ACOfinalize(instance_t* inst) {
 /*****************/
 
 /** Heuristic information **/
-double adaptiveCost(instance_t* inst, ant_t* ant, int col) {
-    unsigned int covers = 0;
+double heuristicValue(instance_t* inst, ant_t* ant, int col) {
+    int covers = 0;
     for (int i = 0; i < inst->nrow[col]; i++) {
         if (!ant->y[inst->row[col][i]]) {
             covers += 1;
@@ -94,7 +94,7 @@ double adaptiveCost(instance_t* inst, ant_t* ant, int col) {
 // select column j with probability:
 //   pheromone[j]*(heuristic[j]**beta) / Sum_q (pheromone[q]*(heuristic[q]**beta))
 // and add column j to the solution.
-void constructSolution(instance_t* inst, ant_t* ant) {
+void constructAnt(instance_t* inst, ant_t* ant) {
     int row = -1;
     while (row < 0) {
         int idx = pickRandom(0, inst->m-1);
@@ -106,12 +106,12 @@ void constructSolution(instance_t* inst, ant_t* ant) {
     double denom = 0;
     for (int i = 0; i < inst->ncol[row]; i++) {
         int col = inst->col[row][i];
-        denom += pheromone[col] * powf(adaptiveCost(inst, ant, col), beta);
+        denom += pheromone[col] * powf(heuristicValue(inst, ant, col), beta);
     }
     double* probabilities = mymalloc(inst->n * sizeof(double));
     for (int i = 0; i < inst->n; i++) {
         if (columnCovers(inst, i, row)) {
-            double nom = pheromone[i] * powf(adaptiveCost(inst, ant, i), beta);
+            double nom = pheromone[i] * powf(heuristicValue(inst, ant, i), beta);
             probabilities[i] = nom / denom;
         } else {
             probabilities[i] = 0;
@@ -235,7 +235,7 @@ void firstImprovement(instance_t* inst, ant_t* ant) {
             if (antcpy->x[i]) {
                 removeSet(inst, antcpy, i);
                 while (!isSolution(antcpy)) {
-                    constructSolution(inst, antcpy);
+                    constructAnt(inst, antcpy);
                 }
                 if (antcpy->fx < ant->fx) {
                     copySolution(inst, antcpy, ant);
@@ -252,18 +252,12 @@ void firstImprovement(instance_t* inst, ant_t* ant) {
 }
 
 /** Check if there is a new best solution **/
-void updateOptimal(instance_t* inst, optimal_t* opt, ant_t* ant) {
-    opt->time = computeTime(start_time, clock());
-    opt->fx = ant->fx;
-    for (int i = 0; i < inst->n; i++) opt->x[i] = ant->x[i];
-}
-
 void updateTau(optimal_t* opt) {
     tau_max = (double) 1 / (double) ((1 - ro) * opt->fx);
     tau_min = (double) epsilon * tau_max;
 }
 
-void updateBest(instance_t* inst, optimal_t* opt) {
+void updateBestAnt(instance_t* inst, optimal_t* opt) {
     int bestAnt = -1;
     int bestAntCost = INT32_MAX;
     for (int a = 0; a < ant_count; a++) {
@@ -345,11 +339,11 @@ void ACOsolve(instance_t* inst, optimal_t* opt) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while (!isSolution(ant)) {
-                constructSolution(inst, ant);
+                constructAnt(inst, ant);
             }
             localSearch(inst, ant);
         }
-        updateBest(inst, opt);
+        updateBestAnt(inst, opt);
         updatePheromone(inst, opt);
         clearColony(inst);
         printf("Iteration: %d - time elapsed: %f - optimal cost: %d\n",
@@ -366,11 +360,11 @@ void ACOtest(instance_t* inst, optimal_t* opt) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while(!isSolution(ant)) {
-                constructSolution(inst, ant);
+                constructAnt(inst, ant);
             }
             localSearch(inst, ant);
         }
-        updateBest(inst, opt);
+        updateBestAnt(inst, opt);
         updatePheromone(inst, opt);
         clearColony(inst);
         ctr++;

@@ -116,3 +116,10 @@ void copySolution(instance_t* inst, solution_t* src, solution_t* dest) {
     }
 }
 
+/*** Update the optimal solution ***/
+void updateOptimal(instance_t* inst, optimal_t* opt, solution_t* sol) {
+    opt->time = computeTime(start_time, clock());
+    opt->fx = sol->fx;
+    for (int i = 0; i < inst->n; i++) opt->x[i] = sol->x[i];
+}
+
