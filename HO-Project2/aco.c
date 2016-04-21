@@ -16,6 +16,7 @@
 #include "utils.h"
 #include "solution.h"
 #include "lsscp.h"
+#include "iterative.h"
 #include "aco.h"
 
 /********************/
@@ -50,15 +51,7 @@ void ACOinitialize(instance_t* inst) {
         colony[a] = mymalloc(sizeof(ant_t));
         ant_t* ant = colony[a];
         allocSolution(inst, ant);
-        ant->fx = 0;
-        ant->un_rows = inst->m;
-        for (int i = 0; i < inst->n; i++) ant->x[i] = 0;
-        for (int i = 0; i < inst->m; i++) {
-            ant->y[i] = 0;
-            ant->ncol_cover[i] = 0;
-            int k = inst->ncol[i];
-            for (int j = 0; j < k; j++) ant->col_cover[i][j] = -1;
-        }
+        initSolution(inst, ant);
     }
 }
 
@@ -132,7 +125,7 @@ void constructAnt(instance_t* inst, ant_t* ant) {
 /** Local Search methods **/
 // FI needs more time to find optimal solution
 // but less iterations, since REP iterates faster
-void localSearch(instance_t* inst, ant_t* ant) {
+void localSearchACO(instance_t* inst, ant_t* ant) {
     if (fi) {
         eliminate(inst, ant);
         firstImprovement(inst, ant);
@@ -221,34 +214,6 @@ void replaceColumns(instance_t* inst, ant_t* ant) {
     // Free memory
     free(sortedCols);
     free(Wj);
-}
-
-/*** First Improvement local search method ***/
-void firstImprovement(instance_t* inst, ant_t* ant) {
-    int improvement = 1;
-    ant_t* antcpy = mymalloc(sizeof(ant_t));
-    allocSolution(inst, antcpy);
-    copySolution(inst, ant, antcpy);
-    while (improvement) {
-        improvement = 0;
-        for (int i = 0; i < inst->n; i++) {
-            if (antcpy->x[i]) {
-                removeSet(inst, antcpy, i);
-                while (!isSolution(antcpy)) {
-                    constructAnt(inst, antcpy);
-                }
-                if (antcpy->fx < ant->fx) {
-                    copySolution(inst, antcpy, ant);
-                    improvement = 1;
-                    eliminate(inst, ant);
-                } else {
-                    copySolution(inst, ant, antcpy);
-                }
-            }
-        }
-    }
-    freeSolution(inst, antcpy);
-    free(antcpy);
 }
 
 /** Check if there is a new best solution **/
@@ -341,7 +306,7 @@ void ACOsolve(instance_t* inst, optimal_t* opt) {
             while (!isSolution(ant)) {
                 constructAnt(inst, ant);
             }
-            localSearch(inst, ant);
+            localSearchACO(inst, ant);
         }
         updateBestAnt(inst, opt);
         updatePheromone(inst, opt);
@@ -354,19 +319,6 @@ void ACOsolve(instance_t* inst, optimal_t* opt) {
     }
 }
 
-void ACOtest(instance_t* inst, optimal_t* opt) {
-    int ctr = 0;
-    while (ctr < 20) {
-        for (int a = 0; a < ant_count; a++) {
-            ant_t* ant = colony[a];
-            while(!isSolution(ant)) {
-                constructAnt(inst, ant);
-            }
-            localSearch(inst, ant);
-        }
-        updateBestAnt(inst, opt);
-        updatePheromone(inst, opt);
-        clearColony(inst);
-        ctr++;
-    }
-}
+
+
+

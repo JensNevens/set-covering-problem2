@@ -22,13 +22,12 @@ double heuristicValue(instance_t* inst, ant_t* ant, int col);
 void constructAnt(instance_t* inst, ant_t* ant);
 
 //     Local Search
-void localSearch(instance_t* inst, ant_t* ant);
+void localSearchACO(instance_t* inst, ant_t* ant);
 //         Method described by Ren et al.
 int computeWj(instance_t* inst, ant_t* ant, int* Wj, int col);
 int getLow(instance_t* inst, int row);
 void replaceColumns(instance_t* inst, ant_t* ant);
-//         First Improvement method
-void firstImprovement(instance_t* inst, ant_t* ant);
+
 
 //     Update best solution
 void updateTau(optimal_t* opt);
@@ -40,6 +39,5 @@ void clearColony(instance_t* inst);
 
 // General method
 void ACOsolve(instance_t* inst, optimal_t* opt);
-void ACOtest(instance_t* inst, optimal_t* opt);
 
 #endif /* aco_h */

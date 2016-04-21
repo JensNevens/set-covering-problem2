@@ -36,7 +36,7 @@ instance_t* inst;
 optimal_t* opt;
 
 // Flags
-int aco, ga, fi, rep, tour, prop, uniform, fusion = 0;
+int aco, ga, fi, rep, tour, prop, uniform, fusion, bi = 0;
 
 /*** Read parameters from command line ***/
 void readParameters(int argc, char* argv[]) {
@@ -106,6 +106,8 @@ void readParameters(int argc, char* argv[]) {
             uniform = 1;
         } else if (strcmp(argv[i], "--fusion") == 0) {
             fusion = 1;
+        } else if (strcmp(argv[i], "--bi") == 0) {
+            bi = 1;
         } else {
             printf("ERROR: parameter %s not recognized.\n", argv[i]);
             exit(EXIT_FAILURE);

@@ -15,6 +15,7 @@
 
 #include "utils.h"
 #include "solution.h"
+#include "iterative.h"
 #include "genetic.h"
 
 // Algorithm outline
@@ -29,15 +30,16 @@
 //     3.3 Evaluate fitness of children
 //     3.4 Replace (some or all) population by children
 
-// !!! Algorithm in papers assumed columns are ordered
+// Detailed comments can be find in the corresponding .h file
+// (genetic.h)
 
-int offspring_size = 1000; // This can also be a time-limit!
-int population_size = 100;
+int offspring_size = 1000;
+int population_size = 30;
 double Mf = 10;
 double Mc = 200;
 double Mg = 2;
 int offspring_count = 0;
-int pool_size = 2;
+int pool_size = 4;
 
 inidividual_t** population;
 
@@ -50,15 +52,7 @@ void GENinitialize(instance_t* inst) {
         population[c] = mymalloc(sizeof(inidividual_t));
         inidividual_t* indv = population[c];
         allocSolution(inst, indv);
-        indv->fx = 0;
-        indv->un_rows = inst->m;
-        for (int i = 0; i < inst->n; i++) indv->x[i] = 0;
-        for (int i = 0; i < inst->m; i++) {
-            indv->y[i] = 0;
-            indv->ncol_cover[i] = 0;
-            int k = inst->ncol[i];
-            for (int j = 0; j < k; j++) indv->col_cover[i][j] = -1;
-        }
+        initSolution(inst, indv);
     }
 }
 
@@ -84,16 +78,12 @@ void constructIndv(instance_t* inst, inidividual_t* indv) {
             row = idx;
         }
     }
-    
     int col = -1;
-    int colCost = INT32_MAX;
-    for (int i = 0; i < inst->ncol[row]; i++) {
-        int currCol = inst->col[row][i];
-        if (!indv->x[currCol]) {
-            if (inst->cost[currCol] < colCost) {
-                col = currCol;
-                colCost = inst->cost[currCol];
-            }
+    while (col < 0) {
+        int idx = pickRandom(0, inst->ncol[row]-1);
+        int tmp = inst->col[row][idx];
+        if (!indv->x[tmp]) {
+            col = tmp;
         }
     }
     addSet(inst, indv, col);
@@ -143,11 +133,6 @@ void proportionateSelection(int* parents) {
         probabilities[c] = (double) population[c]->fx / (double) denom;
     }
     
-    double probSum = 0;
-    for (int c = 0; c < population_size; c++) {
-        probSum += probabilities[c];
-    }
-    
     for (int i = 0; i < 2; i++) {
         parents[i] = randomFromPDF(probabilities, population_size);
     }
@@ -155,10 +140,7 @@ void proportionateSelection(int* parents) {
 }
 
 /*** Crossover operators ***/
-// TODO: Also extend to 1-point or 2-point crossover?
-//       Problem is, these methods generate 2 children
-//       Solution: singleCrossover (uni, fusion) and doubleCrossover (1-p, 2-p)?
-void crossover(instance_t* inst, int parent1, int parent2, int* child) {
+void crossover(instance_t* inst, int parent1, int parent2, inidividual_t* child) {
     if (uniform) {
         uniformCross(inst, parent1, parent2, child);
     } else if (fusion) {
@@ -167,37 +149,37 @@ void crossover(instance_t* inst, int parent1, int parent2, int* child) {
 }
 
 /*** Uniform crossover ***/
-void uniformCross(instance_t* inst, int parent1, int parent2, int* child) {
+void uniformCross(instance_t* inst, int parent1, int parent2, inidividual_t* child) {
     inidividual_t* par1 = population[parent1];
     inidividual_t* par2 = population[parent2];
     
     for (int i = 0; i < inst->n; i++) {
-        int idx = pickRandom(0, 1);
-        if (!idx) {
-            child[i] = par1->x[i];
-        } else {
-            child[i] = par2->x[i];
+        int bit = pickRandom(0, 1);
+        if (!bit && par1->x[i]) {
+            addSet(inst, child, i);
+        } else if (bit && par2->x[i]) {
+            addSet(inst, child, i);
         }
     }
 }
 
 /*** Fusion crossover ***/
-void fusionCross(instance_t* inst, int parent1, int parent2, int* child) {
+void fusionCross(instance_t* inst, int parent1, int parent2, inidividual_t* child) {
     inidividual_t* par1 = population[parent1];
     inidividual_t* par2 = population[parent2];
     double* probabilities = mymalloc(2 * sizeof(double));
+    probabilities[0] = (double) par2->fx / (double) (par1->fx + par2->fx);
+    probabilities[1] = (double) 1 - probabilities[0];
     
     for (int i = 0; i < inst->n; i++) {
-        if (par1->x[i] == par2->x[i]) {
-            child[i] = par1->x[i];
+        if (par1->x[i] == par2->x[i] && par1->x[i]) {
+            addSet(inst, child, i);
         } else {
-            probabilities[0] = (double) par2->fx / (double) (par1->fx + par2->fx);
-            probabilities[1] = (double) 1 - probabilities[0];
-            int idx = randomFromPDF(probabilities, 2);
-            if (!idx) {
-                child[i] = par1->x[i];
-            } else {
-                child[i] = par2->x[i];
+            int bit = randomFromPDF(probabilities, 2);
+            if (!bit && par1->x[i]) {
+                addSet(inst, child, i);
+            } else if (bit && par2->x[i]) {
+                addSet(inst, child, i);
             }
         }
     }
@@ -205,34 +187,14 @@ void fusionCross(instance_t* inst, int parent1, int parent2, int* child) {
 }
 
 /*** Mutation operator ***/
-void mutate(instance_t* inst, int* child) {
-    int mutateCount = (int) ceil((double) Mf / (double) (1 + exp(-4 * Mg * ((offspring_count - Mc)/Mf))));
-    printf("Mutating %d columns\n", mutateCount);
-    for (int i = 0; i < mutateCount; i++) {
+void mutate(instance_t* inst, inidividual_t* child) {
+    int mutateCount = (int) ceil((double) Mf / (double) (1 + exp(-4 * Mg * (offspring_count - Mc)/Mf)));
+    for (int i = 0; i < (int) ceil(mutateCount); i++) {
         int col = pickRandom(0, inst->n-1);
-        if (child[col]) {
-            child[col] = 0;
+        if (child->x[col]) {
+            removeSet(inst, child, col);
         } else {
-            child[col] = 1;
-        }
-    }
-}
-
-/*** Create an Individual from the generated child ***/
-void createIndv(instance_t* inst, int* child, inidividual_t* indv) {
-    indv->fx = 0;
-    indv->un_rows = inst->m;
-    for (int i = 0; i < inst->n; i++) indv->x[i] = 0;
-    for (int i = 0; i < inst->m; i++) {
-        indv->y[i] = 0;
-        indv->ncol_cover[i] = 0;
-        int k = inst->ncol[i];
-        for (int j = 0; j < k; j++) indv->col_cover[i][j] = -1;
-    }
-    
-    for (int i = 0; i < inst->n; i++) {
-        if (child[i]) {
-            addSet(inst, indv, i);
+            addSet(inst, child, col);
         }
     }
 }
@@ -242,45 +204,73 @@ double coverCost(instance_t* inst, inidividual_t* indv, int col) {
     int covers = 0;
     for (int i = 0; i < inst->nrow[col]; i++) {
         if (!indv->y[inst->row[col][i]]) {
-            covers += 1;
+            covers++;
         }
     }
     return (double) inst->cost[col] / (double) covers;
 }
 
-void makeFeasible(instance_t* inst, inidividual_t* indv) {
+void makeFeasible(instance_t* inst, inidividual_t* child) {
     for (int i = 0; i < inst->m; i++) {
-        if (!indv->y[i]) {
+        if (!child->y[i]) {
             int col = -1;
             double colCost = (double) INT32_MAX;
             for (int j = 0; j < inst->ncol[i]; j++) {
                 int currCol = inst->col[i][j];
-                int currColCost = coverCost(inst, indv, currCol);
+                int currColCost = coverCost(inst, child, currCol);
                 if (currColCost < colCost) {
                     col = currCol;
                     colCost = currColCost;
                 }
             }
-            addSet(inst, indv, col);
+            addSet(inst, child, col);
         }
     }
 }
 
+/*** Local Search methods ***/
+void localSearchGA(instance_t* inst, inidividual_t* indv) {
+    if (fi) {
+        firstImprovement(inst, indv);
+    } else if (bi) {
+        bestImprovement(inst, indv);
+    }
+}
+
+/*** Check for duplicates ***/
+int isDuplicate(instance_t* inst, inidividual_t* child) {
+    int result = 0;
+    for (int c = 0; c < population_size; c++) {
+        inidividual_t* indv = population[c];
+        if (indv->fx == child->fx) {
+            int duplicate = 1;
+            for (int i = 0; i < inst->n; i++) {
+                if (indv->x[i] != child->x[i]) {
+                    duplicate = 0;
+                    break;
+                }
+            }
+            if (duplicate) {
+                result = 1;
+                break;
+            }
+        }
+    }
+    return result;
+}
+
 /*** Replace a bad individual with the newly created one ***/
-void replaceIndv(instance_t* inst, inidividual_t* newIndv) {
+void replaceIndv(instance_t* inst, inidividual_t* child) {
     int totalCost = 0;
     for (int c = 0; c < population_size; c++) {
         totalCost += population[c]->fx;
     }
     double avgCost = (double) totalCost / (double) population_size;
-    printf("Population avg is %f\n", avgCost);
     
     for (int c = 0; c < population_size; c++) {
-        inidividual_t* oldIndv = population[c];
-        if (oldIndv->fx > avgCost && newIndv->fx < oldIndv->fx) {
-            printf("Indv %d (cost %d) is replaced with child (cost %d)\n",
-                   c, oldIndv->fx, newIndv->fx);
-            copySolution(inst, newIndv, oldIndv);
+        inidividual_t* indv = population[c];
+        if (indv->fx > avgCost && child->fx < indv->fx) {
+            copySolution(inst, child, indv);
             break;
         }
     }
@@ -306,15 +296,12 @@ void updateBestIndv(instance_t* inst, optimal_t* opt) {
 void GENsolve(instance_t* inst, optimal_t* opt) {
     int iterCount = 0;
     int constructed = 0;
-    // parents contains 2 idx's of individuals in the population
-    // child is binary representation of an individual
     int* parents = mymalloc(2 * sizeof(int));
-    int* child = mymalloc(inst->n * sizeof(int));
-    inidividual_t* indv = mymalloc(sizeof(inidividual_t));
-    allocSolution(inst, indv);
+    inidividual_t* child = mymalloc(sizeof(inidividual_t));
+    allocSolution(inst, child);
     
-    //while (computeTime(start_time, clock()) < 10) {
-    while (offspring_count < 10) {
+    while (computeTime(start_time, clock()) < 10) {
+    //while (offspring_count < 1000) {
         if (!constructed) {
             for (int c = 0; c < population_size; c++) {
                 inidividual_t* indv = population[c];
@@ -322,40 +309,49 @@ void GENsolve(instance_t* inst, optimal_t* opt) {
                     constructIndv(inst, indv);
                 }
                 eliminate(inst, indv);
+                localSearchGA(inst, indv);
             }
             constructed = 1;
         }
         // Main loop of the algorithm:
-        selectParents(parents);
-        int par1 = parents[0];
-        int par2 = parents[1];
-        for (int i = 0; i < inst->n; i++) child[i] = 0;
-        printf("Parents %d and %d selected\n", par1, par2);
-        crossover(inst, par1, par2, child);
-        mutate(inst, child);
-        createIndv(inst, child, indv);
-        printf("Initial child cost is %d\n", indv->fx);
-        if (!isSolution(indv)) {
-            makeFeasible(inst, indv);
+        int acceptChild = 0;
+        int trials = 0;
+        while (!acceptChild) {
+            selectParents(parents);
+            int par1 = parents[0];
+            int par2 = parents[1];
+            
+            initSolution(inst, child);
+            crossover(inst, par1, par2, child);
+            if (!isSolution(child)) makeFeasible(inst, child);
+            eliminate(inst, child);
+            localSearchGA(inst, child);
+            
+            mutate(inst, child);
+            if (!isSolution(child)) makeFeasible(inst, child);
+            eliminate(inst, child);
+            localSearchGA(inst, child);
+            
+            trials++;
+            if (!isDuplicate(inst, child)) {
+                acceptChild = 1;
+            }
         }
-        printf("Completed child cost is %d\n", indv->fx);
-        eliminate(inst, indv);
-        printf("Child cost after RE is %d\n", indv->fx);
-        // TODO: Check for duplicates!!
+        
         offspring_count++;
-        replaceIndv(inst, indv);
+        replaceIndv(inst, child);
         updateBestIndv(inst, opt);
-        printf("Iteration: %d - time elapsed: %f - optimal cost: %d\n\n\n",
+        printf("Iteration: %d - trails: %d - time elapsed: %f - optimal cost: %d\n",
                iterCount,
+               trials,
                computeTime(start_time, clock()),
                opt->fx);
         iterCount++;
     }
     // Free resources
     free(parents);
+    freeSolution(inst, child);
     free(child);
-    freeSolution(inst, indv);
-    free(indv);
 }
 
 

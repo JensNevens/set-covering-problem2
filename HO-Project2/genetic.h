@@ -24,19 +24,22 @@ void tournamentSelection(int* parents);
 void proportionateSelection(int* parents);
 
 //     Crossover operators
-void crossover(instance_t* inst, int parent1, int parent2, int* child);
-void uniformCross(instance_t* inst, int parent1, int parent2, int* child);
-void fusionCross(instance_t* inst, int parent1, int parent2, int* child);
+void crossover(instance_t* inst, int parent1, int parent2, inidividual_t* child);
+void uniformCross(instance_t* inst, int parent1, int parent2, inidividual_t* child);
+void fusionCross(instance_t* inst, int parent1, int parent2, inidividual_t* child);
 
 //     Mutation operators
-void mutate(instance_t* inst, int* child);
-
-//     Create Individual
-void createIndv(instance_t* inst, int* child, inidividual_t* indv);
+void mutate(instance_t* inst, inidividual_t* child);
 
 //     Make Individual valid
 double coverCost(instance_t* inst, inidividual_t* indv, int col);
 void makeFeasible(instance_t* inst, inidividual_t* indv);
+
+//     Local Search
+void localSearchGA(instance_t* inst, inidividual_t* indv);
+
+//     Check for duplicates
+int isDuplicate(instance_t* inst, inidividual_t* child);
 
 //     Replace an Individual
 void replaceIndv(instance_t* inst, inidividual_t* newIndv);
@@ -55,8 +58,7 @@ void GENsolve(instance_t* inst, optimal_t* opt);
 //       choosing a column covering that row
 //       based on the least cost. (ch2)
 //       (Paper used 5 least cost columns)
-//    2. applying random redundancy elimination
-//       (i.e. RE without sorting first).
+//    2. applying redundancy elimination
 
 // 2. Representation and fitness:
 //    Binary representation is used for representation.

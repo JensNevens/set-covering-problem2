@@ -71,5 +71,6 @@ extern int tour;
 extern int prop;
 extern int uniform;
 extern int fusion;
+extern int bi;
 
 #endif /* data_h */

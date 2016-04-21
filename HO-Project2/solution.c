@@ -89,6 +89,19 @@ void allocSolution(instance_t* inst, solution_t* sol) {
     }
 }
 
+/*** Initialize a solution with the appropriate values ***/
+void initSolution(instance_t* inst, solution_t* sol) {
+    sol->fx = 0;
+    sol->un_rows = inst->m;
+    for (int i = 0; i < inst->n; i++) sol->x[i] = 0;
+    for (int i = 0; i < inst->m; i++) {
+        sol->y[i] = 0;
+        sol->ncol_cover[i] = 0;
+        int k = inst->ncol[i];
+        for (int j = 0; j < k; j++) sol->col_cover[i][j] = -1;
+    }
+}
+
 /*** Free all memory for a single solution ***/
 void freeSolution(instance_t* inst, solution_t* sol) {
     for (int i = 0; i < inst->m; i++) {

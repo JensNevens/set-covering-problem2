@@ -17,6 +17,7 @@ void shift(solution_t* sol, int row, int start);
 int isSolution(solution_t* sol);
 
 void allocSolution(instance_t* inst, solution_t* sol);
+void initSolution(instance_t* inst, solution_t* sol);
 void freeSolution(instance_t* inst, solution_t* sol);
 void copySolution(instance_t* inst, solution_t* src, solution_t* dest);
 
