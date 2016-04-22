@@ -36,7 +36,7 @@ double coverCost(instance_t* inst, inidividual_t* indv, int col);
 void makeFeasible(instance_t* inst, inidividual_t* indv);
 
 //     Local Search
-void localSearchGA(instance_t* inst, inidividual_t* indv);
+void localSearchGEN(instance_t* inst, inidividual_t* indv);
 
 //     Check for duplicates
 int isDuplicate(instance_t* inst, inidividual_t* child);

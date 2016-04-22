@@ -34,7 +34,7 @@
 // (genetic.h)
 
 int offspring_size = 1000;
-int population_size = 30;
+int population_size = 100;
 double Mf = 10;
 double Mc = 200;
 double Mg = 2;
@@ -229,7 +229,7 @@ void makeFeasible(instance_t* inst, inidividual_t* child) {
 }
 
 /*** Local Search methods ***/
-void localSearchGA(instance_t* inst, inidividual_t* indv) {
+void localSearchGEN(instance_t* inst, inidividual_t* indv) {
     if (fi) {
         firstImprovement(inst, indv);
     } else if (bi) {
@@ -300,8 +300,7 @@ void GENsolve(instance_t* inst, optimal_t* opt) {
     inidividual_t* child = mymalloc(sizeof(inidividual_t));
     allocSolution(inst, child);
     
-    while (computeTime(start_time, clock()) < 10) {
-    //while (offspring_count < 1000) {
+    while (computeTime(start_time, clock()) < runtime) {
         if (!constructed) {
             for (int c = 0; c < population_size; c++) {
                 inidividual_t* indv = population[c];
@@ -309,11 +308,10 @@ void GENsolve(instance_t* inst, optimal_t* opt) {
                     constructIndv(inst, indv);
                 }
                 eliminate(inst, indv);
-                localSearchGA(inst, indv);
+                localSearchGEN(inst, indv);
             }
             constructed = 1;
         }
-        // Main loop of the algorithm:
         int acceptChild = 0;
         int trials = 0;
         while (!acceptChild) {
@@ -325,12 +323,12 @@ void GENsolve(instance_t* inst, optimal_t* opt) {
             crossover(inst, par1, par2, child);
             if (!isSolution(child)) makeFeasible(inst, child);
             eliminate(inst, child);
-            localSearchGA(inst, child);
+            localSearchGEN(inst, child);
             
             mutate(inst, child);
             if (!isSolution(child)) makeFeasible(inst, child);
             eliminate(inst, child);
-            localSearchGA(inst, child);
+            localSearchGEN(inst, child);
             
             trials++;
             if (!isDuplicate(inst, child)) {
@@ -341,14 +339,13 @@ void GENsolve(instance_t* inst, optimal_t* opt) {
         offspring_count++;
         replaceIndv(inst, child);
         updateBestIndv(inst, opt);
-        printf("Iteration: %d - trails: %d - time elapsed: %f - optimal cost: %d\n",
+        /*printf("Iteration: %d - trails: %d - time elapsed: %f - optimal cost: %d\n",
                iterCount,
                trials,
                computeTime(start_time, clock()),
-               opt->fx);
+               opt->fx);*/
         iterCount++;
     }
-    // Free resources
     free(parents);
     freeSolution(inst, child);
     free(child);

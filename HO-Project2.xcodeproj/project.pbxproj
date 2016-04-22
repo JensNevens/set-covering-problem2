@@ -11,6 +11,7 @@
 		B4135DAE1CBF8DC200614BC9 /* solution.c in Sources */ = {isa = PBXBuildFile; fileRef = B4135DAC1CBF8DC200614BC9 /* solution.c */; };
 		B47C403D1CC9231F00D93B1C /* iterative.c in Sources */ = {isa = PBXBuildFile; fileRef = B47C403B1CC9231F00D93B1C /* iterative.c */; };
 		B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */ = {isa = PBXBuildFile; fileRef = B4C8F0931CBCE90100F02BA4 /* lsscp.c */; };
+		B4DCA00B1CCA0EBB009307B0 /* best.c in Sources */ = {isa = PBXBuildFile; fileRef = B4DCA0091CCA0EBB009307B0 /* best.c */; };
 		B4F693711CC2861C00255544 /* aco.c in Sources */ = {isa = PBXBuildFile; fileRef = B4F6936F1CC2861C00255544 /* aco.c */; };
 		B4F693741CC28F3300255544 /* genetic.c in Sources */ = {isa = PBXBuildFile; fileRef = B4F693721CC28F3300255544 /* genetic.c */; };
 /* End PBXBuildFile section */
@@ -36,12 +37,14 @@
 		B45A0D2A1CC127580049BF8B /* run.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = run.sh; sourceTree = "<group>"; };
 		B47C403B1CC9231F00D93B1C /* iterative.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = iterative.c; sourceTree = "<group>"; };
 		B47C403C1CC9231F00D93B1C /* iterative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iterative.h; sourceTree = "<group>"; };
-		B49EF5AD1CC0E87900C67257 /* ACO-output */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "ACO-output"; sourceTree = "<group>"; };
 		B49EF5AE1CC0E87900C67257 /* best.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = best.txt; sourceTree = "<group>"; };
 		B49EF5AF1CC0E87900C67257 /* SCP-Instances */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "SCP-Instances"; sourceTree = "<group>"; };
 		B4C8F0901CBCE90100F02BA4 /* HO-Project2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "HO-Project2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4C8F0931CBCE90100F02BA4 /* lsscp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lsscp.c; sourceTree = "<group>"; };
 		B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lsscp.h; sourceTree = "<group>"; };
+		B4DCA0091CCA0EBB009307B0 /* best.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = best.c; sourceTree = "<group>"; };
+		B4DCA00A1CCA0EBB009307B0 /* best.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = best.h; sourceTree = "<group>"; };
+		B4DCA00C1CCA1739009307B0 /* output */ = {isa = PBXFileReference; lastKnownFileType = folder; path = output; sourceTree = "<group>"; };
 		B4F6936F1CC2861C00255544 /* aco.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aco.c; sourceTree = "<group>"; };
 		B4F693701CC2861C00255544 /* aco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aco.h; sourceTree = "<group>"; };
 		B4F693721CC28F3300255544 /* genetic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = genetic.c; sourceTree = "<group>"; };
@@ -78,8 +81,8 @@
 		B4C8F0921CBCE90100F02BA4 /* HO-Project2 */ = {
 			isa = PBXGroup;
 			children = (
+				B4DCA00C1CCA1739009307B0 /* output */,
 				B45A0D2A1CC127580049BF8B /* run.sh */,
-				B49EF5AD1CC0E87900C67257 /* ACO-output */,
 				B49EF5AE1CC0E87900C67257 /* best.txt */,
 				B49EF5AF1CC0E87900C67257 /* SCP-Instances */,
 				B4C8F0931CBCE90100F02BA4 /* lsscp.c */,
@@ -89,6 +92,8 @@
 				B411835D1CBE70F8000C7557 /* utils.h */,
 				B4135DAC1CBF8DC200614BC9 /* solution.c */,
 				B4135DAD1CBF8DC200614BC9 /* solution.h */,
+				B4DCA0091CCA0EBB009307B0 /* best.c */,
+				B4DCA00A1CCA0EBB009307B0 /* best.h */,
 				B4F6936F1CC2861C00255544 /* aco.c */,
 				B4F693701CC2861C00255544 /* aco.h */,
 				B4F693721CC28F3300255544 /* genetic.c */,
@@ -160,6 +165,7 @@
 				B4F693711CC2861C00255544 /* aco.c in Sources */,
 				B4C8F0941CBCE90100F02BA4 /* lsscp.c in Sources */,
 				B411835E1CBE70F8000C7557 /* utils.c in Sources */,
+				B4DCA00B1CCA0EBB009307B0 /* best.c in Sources */,
 				B47C403D1CC9231F00D93B1C /* iterative.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

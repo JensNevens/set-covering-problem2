@@ -300,7 +300,7 @@ void clearColony(instance_t* inst) {
 //      3.4 Update pheromones
 void ACOsolve(instance_t* inst, optimal_t* opt) {
     int iterCount = 0;
-    while (computeTime(start_time, clock()) < 10) {
+    while (computeTime(start_time, clock()) < runtime) {
         for (int a = 0; a < ant_count; a++) {
             ant_t* ant = colony[a];
             while (!isSolution(ant)) {
@@ -311,10 +311,10 @@ void ACOsolve(instance_t* inst, optimal_t* opt) {
         updateBestAnt(inst, opt);
         updatePheromone(inst, opt);
         clearColony(inst);
-        printf("Iteration: %d - time elapsed: %f - optimal cost: %d\n",
+        /*printf("Iteration: %d - time elapsed: %f - optimal cost: %d\n",
                iterCount,
                computeTime(start_time, clock()),
-               opt->fx);
+               opt->fx);*/
         iterCount++;
     }
 }

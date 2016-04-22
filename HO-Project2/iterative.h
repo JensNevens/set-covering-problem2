@@ -12,6 +12,8 @@
 #include "data.h"
 
 void firstImprovement(instance_t* inst, solution_t* sol);
+
+void findAddedSets(instance_t* inst, solution_t* sol, solution_t* solcpy, best_t* best, int removed);
 void bestImprovement(instance_t* inst, solution_t* sol);
 
 #endif /* iterative_h */

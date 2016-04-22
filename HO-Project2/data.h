@@ -45,7 +45,18 @@ struct Optimal {
 
 typedef struct Optimal optimal_t;
 
+// Best struct
+struct Best {
+    int removed;
+    int* added;
+    int addedPtr;
+    int fx;
+};
+
+typedef struct Best best_t;
+
 extern clock_t start_time;
+extern double runtime;
 
 extern int ant_count;
 extern double beta;

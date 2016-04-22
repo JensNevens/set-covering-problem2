@@ -12,27 +12,36 @@
 
 seed=333
 
-# Remove old files
-for f in "$3"/*.txt
-do
-    rm ${f}
-done
-
 # Write header to output file
-echo "instance, cost, time" >> "$3/aco.txt"
+echo "instance, cost, time" >> "$3/ACO/run.txt"
 
 # Run ACO
 for instance in "$2"/*
 do
     y=${instance%.txt}
-    output=$(eval "$1 --seed $seed --instance $instance --aco --rep")
+    output=$(eval "$1 --seed $seed --instance $instance --runtime 10 --aco --rep")
 
     filename=${y##*/}
     length=${#filename}
     first=$(echo ${filename:3:$length-4} | awk '{print toupper($0)}')
     second=${filename:$length-1:1}
 
-    cost=${output%-*}
-    time=${output#*-}
-    echo "$first.$second, $cost, $time" >> "$3/aco.txt"
+    echo "$first.$second, $output" >> "$3/ACO/run.txt"
+done
+
+# Write header to output file
+echo "instance, cost, time" >> "$3/GEN/run.txt"
+
+# Run ACO
+for instance in "$2"/*
+do
+    y=${instance%.txt}
+    output=$(eval "$1 --seed $seed --instance $instance --runtime 10 --ga --pops 100 --prop --fusion --bi")
+
+    filename=${y##*/}
+    length=${#filename}
+    first=$(echo ${filename:3:$length-4} | awk '{print toupper($0)}')
+    second=${filename:$length-1:1}
+
+    echo "$first.$second, $output" >> "$3/GEN/run.txt"
 done
