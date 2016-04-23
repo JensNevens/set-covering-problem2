@@ -1,8 +1,8 @@
 ##
-##  lsscp.c
+##  statistics.R
 ##  HO-Project2
 ##
-##  Created by Jens Nevens on 16/04/16.
+##  Created by Jens Nevens on 23/04/16.
 ##  Copyright © 2016 Jens Nevens. All rights reserved.
 ##
 

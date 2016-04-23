@@ -345,6 +345,11 @@ void GENsolve(instance_t* inst, optimal_t* opt) {
                computeTime(start_time, clock()),
                opt->fx);*/
         iterCount++;
+        if (qrtd) {
+            if (opt->fx <= maxcost) {
+                break;
+            }
+        }
     }
     free(parents);
     freeSolution(inst, child);

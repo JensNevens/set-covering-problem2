@@ -32,12 +32,13 @@ char* instance_file = "";
 char* output_file = "output.txt";
 clock_t start_time;
 float runtime = 10;
+int maxcost = -1;
 
 instance_t* inst;
 optimal_t* opt;
 
 // Flags
-int aco, ga, fi, rep, tour, prop, uniform, fusion, bi = 0;
+int aco, ga, fi, rep, tour, prop, uniform, fusion, bi, qrtd = 0;
 
 /*** Read parameters from command line ***/
 void readParameters(int argc, char* argv[]) {
@@ -47,7 +48,11 @@ void readParameters(int argc, char* argv[]) {
     }
     for(i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--seed") == 0) {
-            seed = atoi(argv[i+1]);
+            if (atoi(argv[i+1]) == 0) {
+                seed = (int) clock()/CLOCKS_PER_SEC;
+            } else {
+                seed = atoi(argv[i+1]);
+            }
             i += 1;
         } else if (strcmp(argv[i], "--instance") == 0) {
             instance_file = argv[i+1];
@@ -94,6 +99,9 @@ void readParameters(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "--runtime") == 0) {
             runtime = atof(argv[i+1]);
             i += 1;
+        } else if (strcmp(argv[i], "--maxcost") == 0) {
+            maxcost = atoi(argv[i+1]);
+            i += 1;
         } else if (strcmp(argv[i], "--aco") == 0) {
             aco = 1;
         } else if (strcmp(argv[i], "--ga") == 0) {
@@ -112,6 +120,8 @@ void readParameters(int argc, char* argv[]) {
             fusion = 1;
         } else if (strcmp(argv[i], "--bi") == 0) {
             bi = 1;
+        } else if (strcmp(argv[i], "--qrtd") == 0) {
+            qrtd = 1;
         } else {
             printf("ERROR: parameter %s not recognized.\n", argv[i]);
             exit(EXIT_FAILURE);

@@ -57,6 +57,7 @@ typedef struct Best best_t;
 
 extern clock_t start_time;
 extern float runtime;
+extern int maxcost;
 
 extern int ant_count;
 extern double beta;
@@ -83,5 +84,6 @@ extern int prop;
 extern int uniform;
 extern int fusion;
 extern int bi;
+extern int qrtd;
 
 #endif /* data_h */
