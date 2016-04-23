@@ -56,7 +56,7 @@ struct Best {
 typedef struct Best best_t;
 
 extern clock_t start_time;
-extern double runtime;
+extern float runtime;
 
 extern int ant_count;
 extern double beta;

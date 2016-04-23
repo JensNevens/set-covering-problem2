@@ -9,39 +9,48 @@
 # $1 is path of scp executable
 # $2 is path of folder with instances
 # $3 is path of folder to save results
+# $4 is path of file with runtimes
 
 seed=333
 
 # Write header to output file
-echo "instance, cost, time" >> "$3/ACO/run.txt"
+echo "instance, cost, time" >> "$3/runACO.txt"
 
 # Run ACO
+line=1
 for instance in "$2"/*
 do
+    rt=$(sed -n "${line}p" "$4")
+    line=$(( line + 1 ))
+
     y=${instance%.txt}
-    output=$(eval "$1 --seed $seed --instance $instance --runtime 10 --aco --rep")
+    output=$("$1" --seed $seed --instance $instance --aco --rep --runtime $rt)
 
     filename=${y##*/}
     length=${#filename}
     first=$(echo ${filename:3:$length-4} | awk '{print toupper($0)}')
     second=${filename:$length-1:1}
 
-    echo "$first.$second, $output" >> "$3/ACO/run.txt"
+    echo "$first.$second, $output" >> "$3/runACO.txt"
 done
 
 # Write header to output file
-echo "instance, cost, time" >> "$3/GEN/run.txt"
+echo "instance, cost, time" >> "$3/runGEN.txt"
 
 # Run ACO
+line=1
 for instance in "$2"/*
 do
+    rt=$(sed -n "${line}p" "$4")
+    line=$(( line + 1 ))
+
     y=${instance%.txt}
-    output=$(eval "$1 --seed $seed --instance $instance --runtime 10 --ga --pops 100 --prop --fusion --bi")
+    output=$("$1" --seed $seed --instance $instance --ga --pops 100 --prop --fusion --bi --runtime $rt)
 
     filename=${y##*/}
     length=${#filename}
     first=$(echo ${filename:3:$length-4} | awk '{print toupper($0)}')
     second=${filename:$length-1:1}
 
-    echo "$first.$second, $output" >> "$3/GEN/run.txt"
+    echo "$first.$second, $output" >> "$3/runGEN.txt"
 done

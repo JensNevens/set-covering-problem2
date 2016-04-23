@@ -31,7 +31,7 @@ int seed = 1234567;
 char* instance_file = "";
 char* output_file = "output.txt";
 clock_t start_time;
-double runtime = 10;
+float runtime = 10;
 
 instance_t* inst;
 optimal_t* opt;
@@ -54,9 +54,6 @@ void readParameters(int argc, char* argv[]) {
             i += 1;
         } else if (strcmp(argv[i], "--output") == 0) {
             output_file = argv[i+1];
-            i += 1;
-        } else if (strcmp(argv[i], "--runtime") == 0) {
-            runtime = atof(argv[i+1]);
             i += 1;
         } else if (strcmp(argv[i], "--ac") == 0) {
             // Number of ants
@@ -93,6 +90,9 @@ void readParameters(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "--pool") == 0) {
             // Pool size
             pool_size = atoi(argv[i+1]);
+            i += 1;
+        } else if (strcmp(argv[i], "--runtime") == 0) {
+            runtime = atof(argv[i+1]);
             i += 1;
         } else if (strcmp(argv[i], "--aco") == 0) {
             aco = 1;

@@ -29,6 +29,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B40147521CCA6EA1002B0E12 /* runtimes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = runtimes.txt; sourceTree = "<group>"; };
 		B411835B1CBE707A000C7557 /* data.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = data.h; sourceTree = "<group>"; };
 		B411835C1CBE70F8000C7557 /* utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utils.c; sourceTree = "<group>"; };
 		B411835D1CBE70F8000C7557 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
@@ -62,6 +63,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B4AA66821CCB9A7100021068 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				B4C8F0931CBCE90100F02BA4 /* lsscp.c */,
+				B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */,
+				B411835B1CBE707A000C7557 /* data.h */,
+				B411835C1CBE70F8000C7557 /* utils.c */,
+				B411835D1CBE70F8000C7557 /* utils.h */,
+				B4135DAC1CBF8DC200614BC9 /* solution.c */,
+				B4135DAD1CBF8DC200614BC9 /* solution.h */,
+				B4DCA0091CCA0EBB009307B0 /* best.c */,
+				B4DCA00A1CCA0EBB009307B0 /* best.h */,
+				B4F6936F1CC2861C00255544 /* aco.c */,
+				B4F693701CC2861C00255544 /* aco.h */,
+				B4F693721CC28F3300255544 /* genetic.c */,
+				B4F693731CC28F3300255544 /* genetic.h */,
+				B47C403B1CC9231F00D93B1C /* iterative.c */,
+				B47C403C1CC9231F00D93B1C /* iterative.h */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
 		B4C8F0871CBCE90100F02BA4 = {
 			isa = PBXGroup;
 			children = (
@@ -81,25 +104,12 @@
 		B4C8F0921CBCE90100F02BA4 /* HO-Project2 */ = {
 			isa = PBXGroup;
 			children = (
+				B40147521CCA6EA1002B0E12 /* runtimes.txt */,
 				B4DCA00C1CCA1739009307B0 /* output */,
 				B45A0D2A1CC127580049BF8B /* run.sh */,
 				B49EF5AE1CC0E87900C67257 /* best.txt */,
 				B49EF5AF1CC0E87900C67257 /* SCP-Instances */,
-				B4C8F0931CBCE90100F02BA4 /* lsscp.c */,
-				B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */,
-				B411835B1CBE707A000C7557 /* data.h */,
-				B411835C1CBE70F8000C7557 /* utils.c */,
-				B411835D1CBE70F8000C7557 /* utils.h */,
-				B4135DAC1CBF8DC200614BC9 /* solution.c */,
-				B4135DAD1CBF8DC200614BC9 /* solution.h */,
-				B4DCA0091CCA0EBB009307B0 /* best.c */,
-				B4DCA00A1CCA0EBB009307B0 /* best.h */,
-				B4F6936F1CC2861C00255544 /* aco.c */,
-				B4F693701CC2861C00255544 /* aco.h */,
-				B4F693721CC28F3300255544 /* genetic.c */,
-				B4F693731CC28F3300255544 /* genetic.h */,
-				B47C403B1CC9231F00D93B1C /* iterative.c */,
-				B47C403C1CC9231F00D93B1C /* iterative.h */,
+				B4AA66821CCB9A7100021068 /* src */,
 			);
 			path = "HO-Project2";
 			sourceTree = "<group>";
