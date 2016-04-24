@@ -1,0 +1,2 @@
+instance, cost, time
+C.1, 229, 1.665568

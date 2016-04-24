@@ -41,7 +41,6 @@
 		B49EF5AE1CC0E87900C67257 /* best.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = best.txt; sourceTree = "<group>"; };
 		B49EF5AF1CC0E87900C67257 /* SCP-Instances */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "SCP-Instances"; sourceTree = "<group>"; };
 		B4AA66831CCBBC4900021068 /* percentage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = percentage; sourceTree = "<group>"; };
-		B4AA66841CCBBC4900021068 /* QRTD */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QRTD; sourceTree = "<group>"; };
 		B4AA66851CCBBC4900021068 /* QRTD-Instances */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "QRTD-Instances"; sourceTree = "<group>"; };
 		B4AA66861CCBBC4900021068 /* QRTD-runtimes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-runtimes.txt"; sourceTree = "<group>"; };
 		B4AA66871CCBBC4900021068 /* qrtd.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = qrtd.sh; sourceTree = "<group>"; };
@@ -51,6 +50,10 @@
 		B4AA668B1CCBC43100021068 /* QRTD-cost-2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-cost-2.txt"; sourceTree = "<group>"; };
 		B4AA668C1CCBC43100021068 /* QRTD-cost-05.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-cost-05.txt"; sourceTree = "<group>"; };
 		B4AA668D1CCBC43100021068 /* QRTD-cost-opt.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-cost-opt.txt"; sourceTree = "<group>"; };
+		B4AA668E1CCBC76000021068 /* QRTD1 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QRTD1; sourceTree = "<group>"; };
+		B4AA668F1CCBC76000021068 /* QRTD2 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QRTD2; sourceTree = "<group>"; };
+		B4AA66901CCBC76000021068 /* QRTD05 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QRTD05; sourceTree = "<group>"; };
+		B4AA66911CCBC76000021068 /* QRTDopt */ = {isa = PBXFileReference; lastKnownFileType = folder; path = QRTDopt; sourceTree = "<group>"; };
 		B4C8F0901CBCE90100F02BA4 /* HO-Project2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "HO-Project2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4C8F0931CBCE90100F02BA4 /* lsscp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lsscp.c; sourceTree = "<group>"; };
 		B4C8F09A1CBCE94E00F02BA4 /* lsscp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lsscp.h; sourceTree = "<group>"; };
@@ -115,12 +118,15 @@
 		B4C8F0921CBCE90100F02BA4 /* HO-Project2 */ = {
 			isa = PBXGroup;
 			children = (
+				B4AA668E1CCBC76000021068 /* QRTD1 */,
+				B4AA668F1CCBC76000021068 /* QRTD2 */,
+				B4AA66901CCBC76000021068 /* QRTD05 */,
+				B4AA66911CCBC76000021068 /* QRTDopt */,
 				B4AA668A1CCBC43100021068 /* QRTD-cost-1.txt */,
 				B4AA668B1CCBC43100021068 /* QRTD-cost-2.txt */,
 				B4AA668C1CCBC43100021068 /* QRTD-cost-05.txt */,
 				B4AA668D1CCBC43100021068 /* QRTD-cost-opt.txt */,
 				B4AA66831CCBBC4900021068 /* percentage */,
-				B4AA66841CCBBC4900021068 /* QRTD */,
 				B4AA66851CCBBC4900021068 /* QRTD-Instances */,
 				B4AA66861CCBBC4900021068 /* QRTD-runtimes.txt */,
 				B4AA66871CCBBC4900021068 /* qrtd.sh */,
