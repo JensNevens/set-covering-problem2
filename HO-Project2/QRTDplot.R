@@ -11,7 +11,6 @@ filepath <- "/Users/Jens/Documents/Jens/School/1MA/Heuristic Optimization/Assign
 algorithm <- "GEN"
 inst <- "D.1"
 crit <- c("2", "opt")
-critnames <- c("2%", "Optimal")
 
 timematrix <- matrix(nrow=25, ncol=length(crit), dimnames=list(c(), crit))
 
@@ -26,22 +25,12 @@ for (i in crit) {
 timedf <- as.data.frame(timematrix)
 
 for (i in crit) {
-	colname <- paste(i, "ecdf", sep="-")
-	P <- ecdf(timedf[[i]])
-	timedf[[colname]] <- P(timedf[[i]])
-}
-
-for (i in 1:length(crit)) {
-	temp <- timedf[order(timedf[[crit[i]]]), ]
-	pdf(paste(filepath, "output", "plots", paste(algorithm, inst, crit[i], ".pdf", sep=""), sep="/"))
-	colname <- paste(crit[i], "ecdf", sep="-")
-	plot(temp[[crit[i]]], temp[[colname]],
-		 main=paste("Qualified Runtime Distribution for ", algorithm, " on Instance ", inst, " [", critnames[i], "]", sep=""),
-		 xlab="Runtime (s)",
-		 ylab="P(solve)",
-		 type="o")
+	pdf(paste(filepath, 'output', 'plots', paste(algorithm, inst, i, '.pdf', sep=''), sep='/'))
+	par(mgp=c(2.2,0.45,0), tcl=-0.4, mar=c(3.3,3.6,1.1,1.1))
+	plot(ecdf(timedf[[i]]), xlab="Runtime (s)", ylab="P(solve)", main="")
 	dev.off()
 }
+
 
 
 

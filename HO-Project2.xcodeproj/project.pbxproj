@@ -38,6 +38,8 @@
 		B45A0D2A1CC127580049BF8B /* run.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = run.sh; sourceTree = "<group>"; };
 		B47C403B1CC9231F00D93B1C /* iterative.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = iterative.c; sourceTree = "<group>"; };
 		B47C403C1CC9231F00D93B1C /* iterative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iterative.h; sourceTree = "<group>"; };
+		B49DDAD61CCFB57700F53591 /* correlation.R */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = correlation.R; sourceTree = "<group>"; };
+		B49DDAD71CCFB57700F53591 /* deviation.R */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = deviation.R; sourceTree = "<group>"; };
 		B49EF5AE1CC0E87900C67257 /* best.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = best.txt; sourceTree = "<group>"; };
 		B49EF5AF1CC0E87900C67257 /* SCP-Instances */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "SCP-Instances"; sourceTree = "<group>"; };
 		B4AA66831CCBBC4900021068 /* percentage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = percentage; sourceTree = "<group>"; };
@@ -45,7 +47,6 @@
 		B4AA66861CCBBC4900021068 /* QRTD-runtimes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-runtimes.txt"; sourceTree = "<group>"; };
 		B4AA66871CCBBC4900021068 /* qrtd.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = qrtd.sh; sourceTree = "<group>"; };
 		B4AA66881CCBBC4900021068 /* significance.R */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = significance.R; sourceTree = "<group>"; };
-		B4AA66891CCBBC4900021068 /* statistics.R */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = statistics.R; sourceTree = "<group>"; };
 		B4AA668A1CCBC43100021068 /* QRTD-cost-1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-cost-1.txt"; sourceTree = "<group>"; };
 		B4AA668B1CCBC43100021068 /* QRTD-cost-2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-cost-2.txt"; sourceTree = "<group>"; };
 		B4AA668C1CCBC43100021068 /* QRTD-cost-05.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "QRTD-cost-05.txt"; sourceTree = "<group>"; };
@@ -118,6 +119,8 @@
 		B4C8F0921CBCE90100F02BA4 /* HO-Project2 */ = {
 			isa = PBXGroup;
 			children = (
+				B49DDAD61CCFB57700F53591 /* correlation.R */,
+				B49DDAD71CCFB57700F53591 /* deviation.R */,
 				B4AA668E1CCBC76000021068 /* QRTD1 */,
 				B4AA668F1CCBC76000021068 /* QRTD2 */,
 				B4AA66901CCBC76000021068 /* QRTD05 */,
@@ -131,7 +134,6 @@
 				B4AA66861CCBBC4900021068 /* QRTD-runtimes.txt */,
 				B4AA66871CCBBC4900021068 /* qrtd.sh */,
 				B4AA66881CCBBC4900021068 /* significance.R */,
-				B4AA66891CCBBC4900021068 /* statistics.R */,
 				B40147521CCA6EA1002B0E12 /* runtimes.txt */,
 				B4DCA00C1CCA1739009307B0 /* output */,
 				B45A0D2A1CC127580049BF8B /* run.sh */,
